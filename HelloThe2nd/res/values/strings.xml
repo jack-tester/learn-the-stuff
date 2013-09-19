@@ -6,5 +6,7 @@
     <string name="button_send">Send</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_display_message">My helloThe2nd message</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

@@ -6,8 +6,8 @@
 
     <EditText
         android:id="@+id/edit_message"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="0dip"
+        android:layout_height="0dip"
         android:layout_weight="1"
         android:hint="@string/edit_message" />
     <!-- :layout_width ... use 0dipt instead of 'wrap_content' to make it more performant -->
@@ -16,6 +16,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/button_send" />
+        android:text="@string/button_send"
+        android:onClick="sendMessage" />
+        
 
 </LinearLayout>
