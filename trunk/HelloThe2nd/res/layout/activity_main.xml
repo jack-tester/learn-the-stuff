@@ -1,3 +1,5 @@
+
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -6,13 +8,14 @@
 
     <EditText
         android:id="@+id/edit_message"
-        android:layout_width="0dip"
-        android:layout_height="0dip"
         android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:hint="@string/edit_message" />
-    <!-- :layout_width ... use 0dipt instead of 'wrap_content' to make it more performant -->
+    <!-- :layout_width ... use 0dp instead of 'wrap_content' to make it more performant -->
     <!-- :layout_weight ... use 1 to fill the remaining space of the view with field -->
 
+    <!-- acc. training lesson http://developer.android.com/training/basics/firstapp/starting-activity.html -->
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
