@@ -1,13 +1,19 @@
 package appgemacht.hellothe2nd;
 
-import android.app.Activity;
+import android.support.v7.app.ActionBarActivity;
+//import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 
-public class MainActivity extends Activity {
+//
+// http://developer.android.com/training/basics/actionbar/setting-up.html
+//   Adding the action bar when running on versions older than Android 3.0 (down to Android 2.1)
+//   requires that you include the Android Support Library in your application.
+//
+public class MainActivity extends ActionBarActivity {
 	public final static String EXTRA_MESSAGE = "appgemacht.HelloThe2nd.MESSAGE";
 
 	@Override
