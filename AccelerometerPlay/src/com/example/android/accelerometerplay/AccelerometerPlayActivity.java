@@ -358,10 +358,17 @@ public class AccelerometerPlayActivity extends Activity {
             final int dstHeight = (int) (sBallDiameter * mMetersToPixelsY + 0.5f);
             mBitmap = Bitmap.createScaledBitmap(ball, dstWidth, dstHeight, true);
 
+            /* The background bitmap must be properly scaled to the display too - not only the balls !
+             * Fortunately we can do a kind of copy'n'paste from the ball re-scaling above.
+             * By that way we also do not need to have multiple differently scaled images in
+             * the res/drawable-* directories.
+             */
             Options opts = new Options();
             opts.inDither = true;
             opts.inPreferredConfig = Bitmap.Config.RGB_565;
-            mWood = BitmapFactory.decodeResource(getResources(), R.drawable.wood, opts);
+            Bitmap background = BitmapFactory.decodeResource(getResources(), R.drawable.wood, opts);
+            //mWood = BitmapFactory.decodeResource(getResources(), R.drawable.wood, opts);
+            mWood = Bitmap.createScaledBitmap(background, metrics.widthPixels, metrics.heightPixels, true);
         }
 
         @Override
