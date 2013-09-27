@@ -8,5 +8,6 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_display_message">My helloThe2nd message</string>
     <string name="hello_world">Hello world!</string>
+    <string name="action_search">Such, Schnuffi ...</string>
 
 </resources>
