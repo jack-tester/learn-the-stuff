@@ -266,7 +266,7 @@ public class AccelerometerPlayActivity extends Activity {
                 updatePositions(sx, sy, now);
 
                 // We do no more than a limited number of iterations
-                final int NUM_MAX_ITERATIONS = 10;
+                final int NUM_MAX_ITERATIONS = 15;
 
                 /*
                  * Resolve collisions, each particle is tested against every
@@ -276,7 +276,7 @@ public class AccelerometerPlayActivity extends Activity {
                  */
                 boolean more = true;
                 final int count = mBalls.length;
-                for (int k = 0; k < NUM_MAX_ITERATIONS && more; k++) {
+                for (int k = 0; k < NUM_MAX_ITERATIONS /*&& more*/; k++) {
                     more = false;
                     for (int i = 0; i < count; i++) {
                         Particle curr = mBalls[i];
@@ -291,8 +291,8 @@ public class AccelerometerPlayActivity extends Activity {
                                  * add a little bit of entropy, after nothing is
                                  * perfect in the universe.
                                  */
-                                dx += ((float) Math.random() - 0.5f) * 0.0001f;
-                                dy += ((float) Math.random() - 0.5f) * 0.0001f;
+                                dx += ((float) Math.random() - 0.5f) * 0.00001f;
+                                dy += ((float) Math.random() - 0.5f) * 0.00001f;
                                 dd = dx * dx + dy * dy;
                                 // simulate the spring
                                 final float d = (float) Math.sqrt(dd);
@@ -386,7 +386,7 @@ public class AccelerometerPlayActivity extends Activity {
             if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER)
                 return;
             /*
-             * record the accelerometer data, the event's timestamp as well as
+             * record the accelerometer data, the event's time stamp as well as
              * the current time. The latter is needed so we can calculate the
              * "present" time during rendering. In this application, we need to
              * take into account how the screen is rotated with respect to the
@@ -427,7 +427,6 @@ public class AccelerometerPlayActivity extends Activity {
              *   http://developer.android.com/guide/topics/graphics/2d-graphics.html
              */
 
-            //canvas.drawBitmap(mWood, 0, 0, null);
         	canvas.drawBitmap(mWood, 0, 0, null);
 
             /*
