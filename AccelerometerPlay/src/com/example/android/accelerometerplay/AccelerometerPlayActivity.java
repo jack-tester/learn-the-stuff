@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 import android.view.View;
@@ -49,6 +50,10 @@ import android.view.WindowManager;
 
 public class AccelerometerPlayActivity extends Activity {
 
+    // Debugging
+    private static final String TAG = "PushBalls";
+    private static final boolean D = false; // change it to 'true' to make debug traces happen..
+	
     private SimulationView mSimulationView;
     private SensorManager mSensorManager;
     private PowerManager mPowerManager;
@@ -383,6 +388,8 @@ public class AccelerometerPlayActivity extends Activity {
 
         @Override
         public void onSensorChanged(SensorEvent event) {
+        	String rot = "";
+        	
             if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER)
                 return;
             /*
@@ -398,20 +405,25 @@ public class AccelerometerPlayActivity extends Activity {
                 case Surface.ROTATION_0:
                     mSensorX = event.values[0];
                     mSensorY = event.values[1];
+                    rot = "R   0";
                     break;
                 case Surface.ROTATION_90:
                     mSensorX = -event.values[1];
                     mSensorY = event.values[0];
+                    rot = "R  90";
                     break;
                 case Surface.ROTATION_180:
                     mSensorX = -event.values[0];
                     mSensorY = -event.values[1];
+                    rot = "R 180";
                     break;
                 case Surface.ROTATION_270:
                     mSensorX = event.values[1];
                     mSensorY = -event.values[0];
+                    rot = "R 270";
                     break;
             }
+            if ((D) && (rot!="")) Log.e(TAG, "____"+rot+": x="+mSensorX+" y="+mSensorY+"___");
 
             mSensorTimeStamp = event.timestamp;
             mCpuTimeStamp = System.nanoTime();
