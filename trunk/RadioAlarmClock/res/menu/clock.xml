@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/alarm" android:showAsAction="ifRoom" android:checkable="false" android:title="Alarm"></item>
+    <item android:id="@+id/radio" android:title="Radio" android:showAsAction="ifRoom"></item>
+    
+
+</menu>
