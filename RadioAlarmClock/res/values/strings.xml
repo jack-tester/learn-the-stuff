@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Radiowecker</string>
+    <string name="editStreamURLHint">http://host.com/stream</string>
+    <string name="StopAlarm">Alarm aus</string>
+    <string name="lookupStations">Stationsübersicht</string>
+    <string name="TestStation">Testen</string>
+    <string name="LoadingStation">Lade Station&#8230;</string> <!-- Ellipsis (...) --> 
+    <string name="Add">Hinzufügen</string>
+    <string name="NoRadioStream">Keine Radiostation ausgewählt</string>
+	<string name="ClickStreamLink">Tippen Sie auf einen Bitraten-Link und öffnen Sie ihn mit der Radiowecker-App</string>
+</resources>
