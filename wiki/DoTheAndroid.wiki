@@ -8,7 +8,8 @@ Well - that intro might be added later ...
 == Eclipse 'good to know's ... ==
 
   * an Android device at USB is not necessarily popping up if you choose 'Run As...' - 'Android Application' !<br>If the connected device's Android version is not compatible with the app, then it will not be selectable as the target to run on.
-    * Check the settings in project properties, 'Run/Debug Settings', 'Target'
+    * check the version selected in project properties, 'Android', 'Project Build Target'
+    * check the settings in project properties, 'Run/Debug Settings', 'Target'
 
 = Details =
 
