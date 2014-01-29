@@ -1,0 +1,13 @@
+#summary That site is used to collect knowledge snippets collected through the coarse of my first Android programming steps.
+
+= Introduction =
+
+Well - that intro might be added later ...
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
