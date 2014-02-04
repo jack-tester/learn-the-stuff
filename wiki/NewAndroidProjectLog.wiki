@@ -6,7 +6,9 @@ t.b.a.
 
  * Eclipse Kepler etc. ...
  * New Project - Android Application Project
- * project data:
-  ** Name = {application}\_APPgemacht
-  **
+{{{
+Application Name = <MyApplicationName>_APPgemacht
+Project Name = <MyApplicationName>_APPgemacht
+Package Name = appgemacht.de.<application related name>
+}}}
   
