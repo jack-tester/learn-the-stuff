@@ -7,6 +7,6 @@ t.b.a.
  * Eclipse Kepler etc. ...
  * New Project - Android Application Project
  * project data:
-  ** Name = <application>_APPgemacht
+  ** Name = {application}_APPgemacht
   **
   
