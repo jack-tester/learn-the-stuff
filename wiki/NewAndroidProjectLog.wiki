@@ -7,8 +7,8 @@ t.b.a.
  * Eclipse Kepler etc. ...
  * New Project - Android Application Project
 {{{
-Application Name = <MyApplicationName>_APPgemacht
-Project Name = <MyApplicationName>_APPgemacht
-Package Name = appgemacht.de.<application related name>
+Application Name = <My Application Name>
+Project Name = <MyApplicationName>_by_appgemacht
+Package Name = com.appgemacht.<myapplicationname>
 }}}
-  
+   (note: the usage of upper and lower case letters !)
