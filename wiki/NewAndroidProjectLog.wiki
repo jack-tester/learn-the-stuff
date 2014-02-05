@@ -12,3 +12,16 @@ Project Name = <MyApplicationName>_by_appgemacht
 Package Name = com.appgemacht.<myapplicationname>
 }}}
    (note: the usage of upper and lower case letters !)
+
+= Solved issues =
+
+ * the 'R' class (R.java) is an auto generated file which is often not created by the Eclipse staff because of missing preconditions you have to provide:
+{{{
+// for every 'final class XY' entry in 'R.java'
+//  you need to have a file 'res/<XY>/<entry>.xml' in place
+//
+// for example:
+//  if 'R.java' shall have a section 'public static final class layout'
+//   covering for example 'public static final int activity_main'
+//  then you need to have a file 'res/layout/activity_main.xml' in place.
+}}}
