@@ -25,3 +25,4 @@ Package Name = com.appgemacht.<myapplicationname>
 //   covering for example 'public static final int activity_main'
 //  then you need to have a file 'res/layout/activity_main.xml' in place.
 }}}
+ * Missing Library can be added physically under <project>/libs
