@@ -27,7 +27,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.appgemacht.radioalarmclock.InternetRadio.InternetRadioListener;
+//import com.appgemacht.radioalarmclock.InternetRadio.InternetRadioListener;
 import com.appgemacht.radioalarmclock.Alarms;
 import com.appgemacht.radioalarmclock.R;
 import com.appgemacht.radioalarmclock.InternetRadio;
@@ -114,8 +114,8 @@ public class MainActivity extends Activity implements InternetRadioListener {
 		}, 0, 1000); // wiederhole alle 1000 ms
 		
 		// Warnung falls keine Radio-URL vorhanden
-//		if(radio.loadStreamURL(this).length()==0)
-//			Toast.makeText(this, R.string.NoRadioStream, Toast.LENGTH_LONG).show();
+		if(radio.loadStreamURL(this).length()==0)
+			Toast.makeText(this, R.string.NoRadioStream, Toast.LENGTH_LONG).show();
 
 		// Intent wird vom BroadcastReceiver gesetzt, wenn ein Alarm fällig ist
 		if (getIntent().getBooleanExtra(ALARM_UP, false)) {
@@ -202,13 +202,16 @@ public class MainActivity extends Activity implements InternetRadioListener {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.alarm:
+		if (item.getItemId() == R.id.alarm)
+		{
 			showSetAlarm();
-			break;
-		case R.id.radio:
+		}
+		else if (item.getItemId() == R.id.radio)
+		{
 			showSetRadio();
-			break;
+		}
+		else
+		{
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -218,7 +221,7 @@ public class MainActivity extends Activity implements InternetRadioListener {
 	}
 
 	private void showSetAlarm() {
-//		startActivityForResult(new Intent(this, AlarmsActivity.class), 0);
+		startActivityForResult(new Intent(this, AlarmsActivity.class), 0);
 	}
 
 	@Override
@@ -250,10 +253,10 @@ public class MainActivity extends Activity implements InternetRadioListener {
 	public static void accquireWakeLock(Context context) {
 		PowerManager powermgr = (PowerManager) context
 				.getSystemService(Context.POWER_SERVICE);
-//		wakeLock = powermgr.newWakeLock(PowerManager.FULL_WAKE_LOCK
-//				| PowerManager.ACQUIRE_CAUSES_WAKEUP,
-//				"RadioAlarmClock");
-//		wakeLock.acquire(3600 * 1000);
+		wakeLock = powermgr.newWakeLock(PowerManager.FULL_WAKE_LOCK
+				| PowerManager.ACQUIRE_CAUSES_WAKEUP,
+				"RadioAlarmClock");
+		wakeLock.acquire(3600 * 1000);
 	}
 
 	/*
