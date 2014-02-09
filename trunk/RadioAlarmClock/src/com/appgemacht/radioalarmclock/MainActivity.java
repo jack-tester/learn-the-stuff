@@ -1,5 +1,10 @@
 package com.appgemacht.radioalarmclock;
 
+/**
+ * uses actionbarsherlock
+ * short howto is here: http://www.youtube.com/watch?v=4GJ6yY1lNNY
+ */
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
