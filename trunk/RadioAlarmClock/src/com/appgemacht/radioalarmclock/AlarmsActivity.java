@@ -19,6 +19,16 @@ import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
 //import android.widget.CompoundButton.OnCheckedChangeListener;
 
+/**
+ * This activity is used to control the definition of wake up times 
+ * per week day.
+ * 
+ * It facilitates the package internal classes
+ *  Alarms, Alarm and SetAlarmFragment.
+ * 
+ * @author Dietmar (derived from c't sample application RadioAlarmClock)
+ *
+ */
 public class AlarmsActivity extends SherlockFragmentActivity {
 	public Alarms alarms;
 	private ListView listView;

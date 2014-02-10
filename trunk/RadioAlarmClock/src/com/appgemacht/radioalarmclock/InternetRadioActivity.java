@@ -19,8 +19,13 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import com.appgemacht.radioalarmclock.InternetRadio.InternetRadioListener;
 
 /**
- * Activity zum Setzen der Radio-Parameter.
- * Diese Activity wird als Popup angezeigt (siehe Definition im AndroidManifest) 
+ * Activity to be used for adjusting the settings related with internet radio streams
+ * - URL, volume, etc.
+ * 
+ * It facilitates the package internal class
+ *  InternetRadio
+ *  
+ * @author Dietmar (derived from c't sample application RadioAlarmClock)
  *
  */
 public class InternetRadioActivity extends Activity implements InternetRadioListener {

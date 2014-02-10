@@ -41,6 +41,20 @@ import com.appgemacht.radioalarmclock.MainActivity;
 //import com.appgemacht.radioalarmclock.AlarmsActivity;
 import com.appgemacht.radioalarmclock.InternetRadioActivity;
 
+/**
+ * Main activity of the RadioAlarmClock:
+ * - displays the current time
+ * - enables basic controls
+ * 
+ * @author Dietmar (derived from c't sample application RadioAlarmClock)
+ *
+ * The original c't application was intentionally not applicable to Android's < 4.x.
+ * But this derived App was pimped with the actionbarsherlock backwards compatibilty
+ * library enabling it to be run on Adroid's down to 2.2.
+ * 
+ * 
+ *
+ */
 public class MainActivity extends Activity implements InternetRadioListener {
 
 	
@@ -92,7 +106,7 @@ public class MainActivity extends Activity implements InternetRadioListener {
 		for (float textSize = height/scale; textSize > 10; textSize *= 0.95) {
 			textView.setTextSize(textSize); // dip
 			if (text.equals(TextUtils.ellipsize(text, textView.getPaint(),
-					width, TextUtils.TruncateAt.END))) // Text passt 
+					                            width, TextUtils.TruncateAt.END))) // Text passt 
 				break;
 		}
 	}
@@ -221,11 +235,17 @@ public class MainActivity extends Activity implements InternetRadioListener {
 		return super.onOptionsItemSelected(item);
 	}
 
+	/**
+	 * Note the difference between the 2 startActivity* calls below.
+	 * Explanation can be found at 
+	 *   http://saiful103a.wordpress.com/2011/03/19/android-startactivity-and-startactivityforresult/
+	 */	
 	private void showSetRadio() {
+		// will start a new activity and not care when where and how that activity finishes
 		startActivity(new Intent(this, InternetRadioActivity.class));
 	}
-
 	private void showSetAlarm() {
+		// waits for callbacks when the started activity decided to finish
 		startActivityForResult(new Intent(this, AlarmsActivity.class), 0);
 	}
 
