@@ -34,18 +34,17 @@ public class AlarmsActivity extends SherlockFragmentActivity {
 	private ListView listView;
 	private AlarmArrayAdapter alarmArrayAdapter;
 	private final List<List<Alarm>> alarmGroups=new ArrayList<List<Alarm>>();
-	
-	
+		
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    alarms=new Alarms(this);
 	    setContentView(R.layout.setalarms);
 	    setTitle("Alarms");
-	    getSupportActionBar().setHomeButtonEnabled(true); // tipp auf das App-Icon oben links führt zurück (android.R.id.home optione menu)
+	    getSupportActionBar().setHomeButtonEnabled(true); // tipp auf das App-Icon oben links führt zurück (android.R.id.home option menu)
 	    
-//	    // Switch in der ActionBar
-//	    getSupportActionBar().setDisplayShowCustomEnabled(true);
+	    // Switch in der ActionBar
+	    getSupportActionBar().setDisplayShowCustomEnabled(true);
 //	    Switch alarmsActive=new Switch(this); // ab 4.0, CheckBox für ältere Releases
 //	    alarmsActive.setChecked(alarms.isActive(this));
 //	    alarmsActive.setOnCheckedChangeListener(new OnCheckedChangeListener() {
