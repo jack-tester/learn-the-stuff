@@ -109,7 +109,7 @@ public class SetAlarmFragment extends SherlockDialogFragment {
 			button.setOnCheckedChangeListener(onToggleWeekdayButton);
 		}
 		// Uhrzeit
-		timePicker.setOnTimeChangedListener(null);
+		timePicker.setOnTimeChangedListener(onTimeChangedListener);
 		if (alarmsGroup.size() != 0) {
 			Alarm firstAlarm = alarmsGroup.get(0);
 			timePicker.setCurrentHour(firstAlarm.hours);
