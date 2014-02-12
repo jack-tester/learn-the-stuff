@@ -42,263 +42,275 @@ import com.appgemacht.radioalarmclock.MainActivity;
 import com.appgemacht.radioalarmclock.InternetRadioActivity;
 
 /**
- * Main activity of the RadioAlarmClock:
- * - displays the current time
- * - enables basic controls
+ * Main activity of the RadioAlarmClock: - displays the current time - enables
+ * basic controls
  * 
  * @author Dietmar (derived from c't sample application RadioAlarmClock)
- *
- * The original c't application was intentionally not applicable to Android's < 4.x.
- * But this derived App was pimped with the actionbarsherlock backwards compatibilty
- * library enabling it to be run on Adroid's down to 2.2.
+ * 
+ *         The original c't application was intentionally not applicable to
+ *         Android's < 4.x. But this derived App was pimped with the
+ *         actionbarsherlock backwards compatibilty library enabling it to be
+ *         run on Adroid's down to 2.2.
  * 
  * 
- *
+ * 
  */
 public class MainActivity extends Activity implements InternetRadioListener {
 
-	
-	public static final String ALARM_UP = "ALARM_UP"; // vom AlarmReceiver:
-	                                                  // Alarm geht los
-	
-	private TextView clockView;
-	private Button stopAlarmButton;
-	private MenuItem alarmMenu;
+    public static final String ALARM_UP = "ALARM_UP"; // vom AlarmReceiver:
+                                                      // Alarm geht los
 
-	private Timer timer; // zum Update der Uhrzeit
-	private static PowerManager.WakeLock wakeLock;
+    private TextView clockView;
+    private Button stopAlarmButton;
+    private MenuItem alarmMenu;
 
-	private Alarms alarms;
-	private InternetRadio radio = new InternetRadio();
-	private int originalVolume;
-	
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    private Timer timer; // zum Update der Uhrzeit
+    private static PowerManager.WakeLock wakeLock;
 
-		setContentView(R.layout.clock);//activity_main);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN); // kein Statusbar ganz oben
-		alarms = new Alarms(this);
-		clockView = (TextView) findViewById(R.id.clockTextView);
-		stopAlarmButton = (Button) findViewById(R.id.stopAlarmButton);
-		stopAlarmButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				stopAlarm();
-			}
-		});
+    private Alarms alarms;
+    private InternetRadio radio = new InternetRadio();
+    private int originalVolume;
 
-		radio.internetRadioListener = this;		
-	}
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-	// Hilfsfunktion um Text in einem TextView so groß wie möglich darzustellen
-	// Im Layout ggf. android:singleLine="true" 
-	// und android:includeFontPadding="false" setzen
-	private void maximize(TextView textView) {
-		// gehe von maximaler Höhe aus und verkleinere bis nicht mehr abgeschnitten wird
-		// Achtung: textView.getTextSize() gibt Pixel zurück
-		// während textView.setTextSize() dips erwartet
-		final CharSequence text = textView.getText();
-		final float scale = getResources().getDisplayMetrics().density;
-		final float width=textView.getWidth()-textView.getPaddingLeft()-textView.getPaddingRight();
-		final float height=textView.getHeight()-textView.getCompoundPaddingTop()-textView.getCompoundPaddingBottom();
-		for (float textSize = height/scale; textSize > 10; textSize *= 0.95) {
-			textView.setTextSize(textSize); // dip
-			if (text.equals(TextUtils.ellipsize(text, textView.getPaint(),
-					                            width, TextUtils.TruncateAt.END))) // Text passt 
-				break;
-		}
-	}
+        setContentView(R.layout.clock);// activity_main);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN); // kein
+                                                                          // Statusbar
+                                                                          // ganz
+                                                                          // oben
+        alarms = new Alarms(this);
+        clockView = (TextView) findViewById(R.id.clockTextView);
+        stopAlarmButton = (Button) findViewById(R.id.stopAlarmButton);
+        stopAlarmButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopAlarm();
+            }
+        });
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		AudioManager audioManager=(AudioManager) getSystemService(Context.AUDIO_SERVICE);
-		originalVolume=audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-		// Timer zur Aktualisierung der Uhrzeit
-		timer = new Timer(getString(R.string.app_name));
-		timer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				// TimerTask läuft in einem Background-Thread, 
-				// UI-Änderungen (z.B. Text setzen)
-				// dürfen aber nur vom UI-Thread aus gemacht werden
-				runOnUiThread(new Runnable() {
-					public void run() {
-						updateClock();
-					}
-				});
-			}
-		}, 0, 1000); // wiederhole alle 1000 ms
-		
-		// Warnung falls keine Radio-URL vorhanden
-		if(radio.loadStreamURL(this).length()==0)
-			Toast.makeText(this, R.string.NoRadioStream, Toast.LENGTH_LONG).show();
+        radio.internetRadioListener = this;
+    }
 
-		// Intent wird vom BroadcastReceiver gesetzt, wenn ein Alarm fällig ist
-		if (getIntent().getBooleanExtra(ALARM_UP, false)) {
-			getIntent().removeExtra(ALARM_UP); // vermeide Mehrfach-Alarm
-			onAlarmUp();
-		}
-	}
-	
-	@Override
-	protected void onPause() {
-		stopAlarm();
-		timer.cancel();		
-		AudioManager audioManager=(AudioManager) getSystemService(Context.AUDIO_SERVICE);
-		audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, originalVolume, 0);
-		super.onPause();
-	}
-	
-	private void onAlarmUp() {
-		Log.v("Alarm","onAlarmUp");
-		accquireWakeLock(this);
-		getWindow().addFlags(
-				WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED						
-						| WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-						| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		flashClock();
-		// starte Radio mit geringer Verzögerung, 
-		// damit das System aufwachen und eine Internet-Verbindung herstellen kann 
-		new Timer().schedule(new TimerTask() {
-			@Override
-			public void run() {
-				alarms.scheduleNextAlarm(MainActivity.this);
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						radio.start(MainActivity.this, true);
-						stopAlarmButton.setVisibility(View.VISIBLE);
-					}
-				});
-			}
-		}, 1000);
-		// Notfall-Fallback, falls Radio nicht abgespielt werden kann
-		// (z.B. keine Internet-Verbindung)
-		new Timer().schedule(new TimerTask() {
-			@Override
-			public void run() {
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						if(!radio.wasStarted()) {
-							radio.playDefaultAlarm(MainActivity.this);
-							stopAlarmButton.setVisibility(View.VISIBLE);
-						}
-					}
-				});
-			}
-		}, 20000);
-	}
+    // Hilfsfunktion um Text in einem TextView so groß wie möglich darzustellen
+    // Im Layout ggf. android:singleLine="true"
+    // und android:includeFontPadding="false" setzen
+    private void maximize(TextView textView) {
+        // gehe von maximaler Höhe aus und verkleinere bis nicht mehr
+        // abgeschnitten wird
+        // Achtung: textView.getTextSize() gibt Pixel zurück
+        // während textView.setTextSize() dips erwartet
+        final CharSequence text = textView.getText();
+        final float scale = getResources().getDisplayMetrics().density;
+        final float width = textView.getWidth() - textView.getPaddingLeft()
+                - textView.getPaddingRight();
+        final float height = textView.getHeight()
+                - textView.getCompoundPaddingTop()
+                - textView.getCompoundPaddingBottom();
+        for (float textSize = height / scale; textSize > 10; textSize *= 0.95) {
+            textView.setTextSize(textSize); // dip
+            if (text.equals(TextUtils.ellipsize(text, textView.getPaint(),
+                    width, TextUtils.TruncateAt.END))) // Text passt
+                break;
+        }
+    }
 
-	// kleine Animation zum Blinken der Uhrzeit
-	private void flashClock() {
-		Animation anim = new AlphaAnimation(0.0f, 1.0f);
-		anim.setDuration(200); // in ms
-		anim.setRepeatMode(Animation.REVERSE);
-		anim.setRepeatCount(30);
-		clockView.startAnimation(anim);
-	}
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        originalVolume = audioManager
+                .getStreamVolume(AudioManager.STREAM_MUSIC);
+        // Timer zur Aktualisierung der Uhrzeit
+        timer = new Timer(getString(R.string.app_name));
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                // TimerTask läuft in einem Background-Thread,
+                // UI-Änderungen (z.B. Text setzen)
+                // dürfen aber nur vom UI-Thread aus gemacht werden
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        updateClock();
+                    }
+                });
+            }
+        }, 0, 1000); // wiederhole alle 1000 ms
 
-	private void stopAlarm() {
-		radio.stop();
-		if (wakeLock != null && wakeLock.isHeld()) {
-			wakeLock.release();
-		}
-		wakeLock = null;
-		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // Bildschirm soll nicht mehr anbleiben
-		stopAlarmButton.setVisibility(View.GONE);
-	}
+        // Warnung falls keine Radio-URL vorhanden
+        if (radio.loadStreamURL(this).length() == 0)
+            Toast.makeText(this, R.string.NoRadioStream, Toast.LENGTH_LONG)
+                    .show();
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
+        // Intent wird vom BroadcastReceiver gesetzt, wenn ein Alarm fällig ist
+        if (getIntent().getBooleanExtra(ALARM_UP, false)) {
+            getIntent().removeExtra(ALARM_UP); // vermeide Mehrfach-Alarm
+            onAlarmUp();
+        }
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.alarm)
-		{
-			showSetAlarm();
-		}
-		else if (item.getItemId() == R.id.radio)
-		{
-			showSetRadio();
-		}
-		else
-		{
-		}
-		return super.onOptionsItemSelected(item);
-	}
+    @Override
+    protected void onPause() {
+        stopAlarm();
+        timer.cancel();
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, originalVolume,
+                0);
+        super.onPause();
+    }
 
-	/**
-	 * Note the difference between the 2 startActivity* calls below.
-	 * Explanation can be found at 
-	 *   http://saiful103a.wordpress.com/2011/03/19/android-startactivity-and-startactivityforresult/
-	 */	
-	private void showSetRadio() {
-		// will start a new activity and not care when where and how that activity finishes
-		startActivity(new Intent(this, InternetRadioActivity.class));
-	}
-	private void showSetAlarm() {
-		// waits for callbacks when the started activity decided to finish
-		startActivityForResult(new Intent(this, AlarmsActivity.class), 0);
-	}
+    private void onAlarmUp() {
+        Log.v("Alarm", "onAlarmUp");
+        accquireWakeLock(this);
+        getWindow().addFlags(
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        flashClock();
+        // starte Radio mit geringer Verzögerung,
+        // damit das System aufwachen und eine Internet-Verbindung herstellen
+        // kann
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                alarms.scheduleNextAlarm(MainActivity.this);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        radio.start(MainActivity.this, true);
+                        stopAlarmButton.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+        }, 1000);
+        // Notfall-Fallback, falls Radio nicht abgespielt werden kann
+        // (z.B. keine Internet-Verbindung)
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!radio.wasStarted()) {
+                            radio.playDefaultAlarm(MainActivity.this);
+                            stopAlarmButton.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+            }
+        }, 20000);
+    }
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		alarms = new Alarms(this); // re-load alarms
-		alarms.scheduleNextAlarm(this);
-		super.onActivityResult(requestCode, resultCode, data);
-	}
+    // kleine Animation zum Blinken der Uhrzeit
+    private void flashClock() {
+        Animation anim = new AlphaAnimation(0.0f, 1.0f);
+        anim.setDuration(200); // in ms
+        anim.setRepeatMode(Animation.REVERSE);
+        anim.setRepeatCount(30);
+        clockView.startAnimation(anim);
+    }
 
-	private void updateClock() {
-		Calendar c = Calendar.getInstance();
-		DateFormat sdf = SimpleDateFormat
-				.getTimeInstance(SimpleDateFormat.SHORT);
-		clockView.setText(sdf.format(c.getTime()));
-		maximize(clockView);
-		// update alarm entry
-		if (alarmMenu != null) {
-			Alarm nextAlarm = alarms.nextAlarm();
-			if (nextAlarm != null && alarms.isActive(this))
-				alarmMenu.setTitle("Alarm: " + nextAlarm.toString());
-			else
-				alarmMenu.setTitle("Alarm: Aus");
-		}
-		if (stopAlarmButton.getVisibility() == View.VISIBLE)
-			maximize(stopAlarmButton);
-	}
+    private void stopAlarm() {
+        radio.stop();
+        if (wakeLock != null && wakeLock.isHeld()) {
+            wakeLock.release();
+        }
+        wakeLock = null;
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // Bildschirm
+                                                                                // soll
+                                                                                // nicht
+                                                                                // mehr
+                                                                                // anbleiben
+        stopAlarmButton.setVisibility(View.GONE);
+    }
 
-	@SuppressWarnings("deprecation")
-	public static void accquireWakeLock(Context context) {
-		PowerManager powermgr = (PowerManager) context
-				.getSystemService(Context.POWER_SERVICE);
-		wakeLock = powermgr.newWakeLock(PowerManager.FULL_WAKE_LOCK
-				| PowerManager.ACQUIRE_CAUSES_WAKEUP,
-				"RadioAlarmClock");
-		wakeLock.acquire(3600 * 1000);
-	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 
-	/*
-	 * The following methods need to be defined here
-	 * because of the inclusion of the package 'com.appgemacht.internetradio'
-	 * @see com.appgemacht.radioalarmclock.InternetRadio.InternetRadioListener#onInternetRadioError(java.lang.String)
-	 */
-	
-	@Override
-	public void onInternetRadioError(String error) {
-		Log.e("Alarm", "Cannot play radio: " + error);
-		Toast.makeText(this, error, Toast.LENGTH_LONG).show();
-	}
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.alarm) {
+            showSetAlarm();
+        } else if (item.getItemId() == R.id.radio) {
+            showSetRadio();
+        } else {
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
-	@Override
-	public void onInternetRadioPrepareFinished() {
-		Log.v("Alarm", "Radio prepare finished");
-	}
+    /**
+     * Note the difference between the 2 startActivity* calls below. Explanation
+     * can be found at
+     * http://saiful103a.wordpress.com/2011/03/19/android-startactivity
+     * -and-startactivityforresult/
+     */
+    private void showSetRadio() {
+        // will start a new activity and not care when where and how that
+        // activity finishes
+        startActivity(new Intent(this, InternetRadioActivity.class));
+    }
+
+    private void showSetAlarm() {
+        // waits for callbacks when the started activity decided to finish
+        startActivityForResult(new Intent(this, AlarmsActivity.class), 0);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        alarms = new Alarms(this); // re-load alarms
+        alarms.scheduleNextAlarm(this);
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void updateClock() {
+        Calendar c = Calendar.getInstance();
+        DateFormat sdf = SimpleDateFormat
+                .getTimeInstance(SimpleDateFormat.SHORT);
+        clockView.setText(sdf.format(c.getTime()));
+        maximize(clockView);
+        // update alarm entry
+        if (alarmMenu != null) {
+            Alarm nextAlarm = alarms.nextAlarm();
+            if (nextAlarm != null && alarms.isActive(this))
+                alarmMenu.setTitle("Alarm: " + nextAlarm.toString());
+            else
+                alarmMenu.setTitle("Alarm: Aus");
+        }
+        if (stopAlarmButton.getVisibility() == View.VISIBLE)
+            maximize(stopAlarmButton);
+    }
+
+    @SuppressWarnings("deprecation")
+    public static void accquireWakeLock(Context context) {
+        PowerManager powermgr = (PowerManager) context
+                .getSystemService(Context.POWER_SERVICE);
+        wakeLock = powermgr.newWakeLock(PowerManager.FULL_WAKE_LOCK
+                | PowerManager.ACQUIRE_CAUSES_WAKEUP, "RadioAlarmClock");
+        wakeLock.acquire(3600 * 1000);
+    }
+
+    /*
+     * The following methods need to be defined here because of the inclusion of
+     * the package 'com.appgemacht.internetradio'
+     * 
+     * @see com.appgemacht.radioalarmclock.InternetRadio.InternetRadioListener#
+     * onInternetRadioError(java.lang.String)
+     */
+
+    @Override
+    public void onInternetRadioError(String error) {
+        Log.e("Alarm", "Cannot play radio: " + error);
+        Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onInternetRadioPrepareFinished() {
+        Log.v("Alarm", "Radio prepare finished");
+    }
 
 }
