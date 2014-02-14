@@ -45,7 +45,7 @@ import com.appgemacht.radioalarmclock.InternetRadioActivity;
  * Main activity of the RadioAlarmClock: - displays the current time - enables
  * basic controls
  * 
- * @author Dietmar (originally provided by http://linkesoft.de/ct/)
+ * @author Dietmar (derived from c't sample application RadioAlarmClock)
  * 
  *         The original c't application was intentionally not applicable to
  *         Android's < 4.x. But this derived App was pimped with the
@@ -76,8 +76,10 @@ public class MainActivity extends Activity implements InternetRadioListener {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.clock);// activity_main);
-//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN); // kein Statusbar ganz oben
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN); // kein
+                                                                          // Statusbar
+                                                                          // ganz
+                                                                          // oben
         alarms = new Alarms(this);
         clockView = (TextView) findViewById(R.id.clockTextView);
         stopAlarmButton = (Button) findViewById(R.id.stopAlarmButton);
@@ -226,7 +228,7 @@ public class MainActivity extends Activity implements InternetRadioListener {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.clock, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
