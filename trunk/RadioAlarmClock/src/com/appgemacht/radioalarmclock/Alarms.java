@@ -136,7 +136,7 @@ public class Alarms {
         alarmManager.cancel(pendingIntent);
         Alarm alarm = nextAlarm();
         // TODO check why 'isActive' does not work properly ...
-        if ((alarm == null) ||!isActive(context))
+        if (alarm == null)// ||!isActive(context))
             return; // kein aktiver Alarm
         Log.v("Alarm",
                 "Schedule next alarm for "
