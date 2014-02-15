@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.view.*;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 
 //import android.widget.CompoundButton.OnCheckedChangeListener;
 
@@ -33,6 +34,7 @@ import android.widget.AdapterView.OnItemClickListener;
 public class AlarmsActivity extends SherlockFragmentActivity {
     public Alarms alarms;
     private ListView listView;
+    private ListView alarmStatus;
     private AlarmArrayAdapter alarmArrayAdapter;
     private final List<List<Alarm>> alarmGroups = new ArrayList<List<Alarm>>();
 
@@ -52,7 +54,7 @@ public class AlarmsActivity extends SherlockFragmentActivity {
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         // Switch alarmsActive=new Switch(this); // ab 4.0, CheckBox für ältere
         // Releases
-        // alarmsActive.setChecked(alarms.isActive(this));
+        //alarmsActive.setChecked(alarms.isActive(this));
         // alarmsActive.setOnCheckedChangeListener(new OnCheckedChangeListener()
         // {
         //
@@ -68,17 +70,34 @@ public class AlarmsActivity extends SherlockFragmentActivity {
 
         // Liste mit Alarm-Gruppen
         listView = (ListView) findViewById(android.R.id.list);
+        
         alarmArrayAdapter = new AlarmArrayAdapter(this, alarmGroups);
+        
         listView.setAdapter(alarmArrayAdapter);
-        listView.setOnItemClickListener(new OnItemClickListener() {
+        listView.setLongClickable(true);
+        listView.setOnItemLongClickListener(new OnItemLongClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapter, View view,
+            public boolean onItemLongClick(AdapterView<?> adapter, View view,
                     int position, long id) {
                 selectAlarmItem(position);
-
+                return true;
             }
         });
+        
+        
+//        listView.setOnItemClickListener(new OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapter, View view,
+//                    int position, long id) {
+//                selectAlarmItem(position);
+//
+//            }
+//        });
+        
 
+        alarmStatus = (ListView) findViewById(R.id.alarmStatus);
+
+        
     }
 
     private void selectAlarmItem(int position) {

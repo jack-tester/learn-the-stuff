@@ -38,7 +38,7 @@ import com.appgemacht.radioalarmclock.R;
 import com.appgemacht.radioalarmclock.InternetRadio;
 import com.appgemacht.radioalarmclock.Alarm;
 import com.appgemacht.radioalarmclock.MainActivity;
-//import com.appgemacht.radioalarmclock.AlarmsActivity;
+import com.appgemacht.radioalarmclock.AlarmsActivity;
 import com.appgemacht.radioalarmclock.InternetRadioActivity;
 
 /**
@@ -61,6 +61,7 @@ public class MainActivity extends Activity implements InternetRadioListener {
                                                       // Alarm geht los
 
     private TextView clockView;
+    private TextView alarmStateTextView;
     private Button stopAlarmButton;
     private MenuItem alarmMenu;
 
@@ -70,6 +71,7 @@ public class MainActivity extends Activity implements InternetRadioListener {
     private Alarms alarms;
     private InternetRadio radio = new InternetRadio();
     private int originalVolume;
+    private boolean bActualAlarmIsEnabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +83,24 @@ public class MainActivity extends Activity implements InternetRadioListener {
                                                                           // ganz
                                                                           // oben
         alarms = new Alarms(this);
+        
         clockView = (TextView) findViewById(R.id.clockTextView);
+
+// an example how to change the headline of the alarm clock on a finger tip        
+//        alarmStateTextView = (TextView) findViewById(R.id.alarmStateTextView);
+//        alarmStateTextView.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (bActualAlarmIsEnabled) {
+//                    bActualAlarmIsEnabled = false;
+//                    alarmStateTextView.setText(R.string.SleepWell);
+//                } else {
+//                    bActualAlarmIsEnabled = true;
+//                    alarmStateTextView.setText(R.string.SleepTilAlarm);
+//                }
+//            }
+//        });
+        
         stopAlarmButton = (Button) findViewById(R.id.stopAlarmButton);
         stopAlarmButton.setOnClickListener(new OnClickListener() {
             @Override

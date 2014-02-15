@@ -16,6 +16,7 @@
     <string name="Radio">Radio</string>
     
     <string name="SleepWell">Schlaf schön ...</string>
+    <string name="SleepTilAlarm">Schlaf bis ich dich wecke !</string>
 
     <string name="hello_world">Hello world!</string>
 </resources>
