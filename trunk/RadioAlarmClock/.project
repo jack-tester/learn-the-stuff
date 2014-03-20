@@ -3,6 +3,7 @@
 	<name>RadioAlarmClock_by_appgemacht</name>
 	<comment></comment>
 	<projects>
+		<project>actionbarsherlock</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
