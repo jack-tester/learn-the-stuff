@@ -26,3 +26,5 @@ Package Name = com.appgemacht.<myapplicationname>
 //  then you need to have a file 'res/layout/activity_main.xml' in place.
 }}}
  * Missing Library can be added physically under {{project}}/libs
+
+ * Starting the APP may cause  an issue like 'Could not find (Library).apk'; that helped out: http://stackoverflow.com/questions/16736452/could-not-find-actionbarsherlock-apk
