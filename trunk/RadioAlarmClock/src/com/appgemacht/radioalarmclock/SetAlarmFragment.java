@@ -18,6 +18,7 @@ public class SetAlarmFragment extends SherlockDialogFragment {
     private List<Alarm> alarmsGroup; // Gruppe von Alarmen mit gleicher Weckzeit
     private TimePicker timePicker;
     private ViewGroup weekdayButtons;
+    private ToggleButton alarmOnOff;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -27,8 +28,11 @@ public class SetAlarmFragment extends SherlockDialogFragment {
 
         final View v = inflater.inflate(R.layout.setalarm, container, false);
 
+        alarmOnOff = (ToggleButton) v.findViewById(R.id.toggleButton0);
+        
         timePicker = (TimePicker) v.findViewById(R.id.timePicker);
         timePicker.setIs24HourView(DateFormat.is24HourFormat(getActivity()));
+        
         weekdayButtons = (ViewGroup) v.findViewById(R.id.weekdayButtons);
 
         List<Integer> weekdays = Alarm.weekdays();
@@ -40,6 +44,7 @@ public class SetAlarmFragment extends SherlockDialogFragment {
             weekdayButton.setTextOff(weekdayButton.getTextOn());
             weekdayButton.setTag(weekdays.get(i));
         }
+
         update();
 
         return v;
@@ -87,6 +92,7 @@ public class SetAlarmFragment extends SherlockDialogFragment {
     }
 
     private void update() {
+      boolean alarmIsOn = false;
         // aktive Wochentage
         for (int i = 0; i < weekdayButtons.getChildCount(); i++) {
             ToggleButton button = (ToggleButton) weekdayButtons.getChildAt(i);
@@ -95,6 +101,7 @@ public class SetAlarmFragment extends SherlockDialogFragment {
             for (Alarm alarm : alarmsGroup) {
                 if (alarm.dayOfWeek == (Integer) button.getTag()) {
                     button.setChecked(true);
+                    alarmIsOn = true;
                     break;
                 }
             }
@@ -111,5 +118,11 @@ public class SetAlarmFragment extends SherlockDialogFragment {
             timePicker.setCurrentMinute(0);
         }
         timePicker.setOnTimeChangedListener(onTimeChangedListener);
+        // globaler Alarmzustand
+        if (alarmIsOn) {
+          alarmOnOff.setText("aktive Weckzeit ist:");
+        } else {
+          alarmOnOff.setText("Kein aktiver Alarm");
+        }
     }
 }
