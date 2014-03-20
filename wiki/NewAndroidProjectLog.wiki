@@ -28,3 +28,8 @@ Package Name = com.appgemacht.<myapplicationname>
  * Missing Library can be added physically under {{project}}/libs
 
  * Starting the APP may cause  an issue like 'Could not find (Library).apk'; that helped out: http://stackoverflow.com/questions/16736452/could-not-find-actionbarsherlock-apk
+
+ * The former tip did not completely solve the issue: APP still crashed with error `'Unable to instantiate activity ComponentInfo {org.<XYZ>/org.<XYZ>.BizTownActivity}`. Solution was found here: http://rip747.wordpress.com/2013/04/05/android-java-lang-runtimeexception-unable-to-instantiate-activity-componentinfo/ in .classpath file the following entry was missing:
+{{{
+ <classpathentry kind="src" path="src"/>
+}}}
