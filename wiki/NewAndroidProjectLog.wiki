@@ -13,6 +13,8 @@ Package Name = com.appgemacht.<myapplicationname>
 }}}
    (note: the usage of upper and lower case letters !)
 
+ * A step-by-step howto: http://www.androidpit.de/de/android/wiki/view/Android_Anf%C3%A4nger_Workshop#toc171
+
 = Solved issues =
 
  * the 'R' class (R.java) is an auto generated file which is often not created by the Eclipse staff because of missing preconditions you have to provide:
