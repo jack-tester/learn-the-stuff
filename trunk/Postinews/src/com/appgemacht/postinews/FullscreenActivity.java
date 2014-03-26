@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -58,8 +59,7 @@ public class FullscreenActivity extends Activity {
     // this activity.
     mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
     mSystemUiHider.setup();
-    mSystemUiHider
-        .setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
+    mSystemUiHider.setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
           // Cached values.
           int mControlsHeight;
           int mShortAnimTime;
@@ -102,6 +102,17 @@ public class FullscreenActivity extends Activity {
       public void onClick(View view) {
         if (TOGGLE_ON_CLICK) {
           mSystemUiHider.toggle();
+         
+          /**
+           * change the text displayed in the back of the view ...
+           * (later one I would like to display stuff from 
+           *    http://www.der-postillion.de/ticker/newsticker2.php
+           *  here)
+           */
+          TextView tv;
+          tv = (TextView) findViewById(R.id.fullscreen_content);//="@+id/fullscreen_content")
+          tv.setText("Ooooh Mann ...");
+          
         } else {
           mSystemUiHider.show();
         }
