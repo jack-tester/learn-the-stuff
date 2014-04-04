@@ -1,5 +1,12 @@
 package com.appgemacht.postinews;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 import com.appgemacht.postinews.util.SystemUiHider;
 
 import android.annotation.TargetApi;
@@ -7,6 +14,7 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -46,6 +54,27 @@ public class FullscreenActivity extends Activity {
    */
   private SystemUiHider mSystemUiHider;
 
+  private void readStream(InputStream in) {
+    BufferedReader reader = null;
+    try {
+      reader = new BufferedReader(new InputStreamReader(in));
+      String line = "";
+      while ((line = reader.readLine()) != null) {
+        System.out.println(line);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }   
+  
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -111,6 +140,21 @@ public class FullscreenActivity extends Activity {
            */
           TextView tv;
           tv = (TextView) findViewById(R.id.fullscreen_content);//="@+id/fullscreen_content")
+          tv.setText("Ooooh Mann ...");
+          
+          try {
+//            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+//            StrictMode.setThreadPolicy(policy); 
+            URL url = new URL("http://www.der-postillion.de/ticker/newsticker2.php");
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            InputStream inpStream = con.getInputStream();
+            // the following call prints the returned string to the console 
+            // !!!!!!!!!!!!!!!!!!!!!!!!
+            readStream(inpStream);
+          } catch (Exception e) {
+              e.printStackTrace();
+          }          
+          
           tv.setText("Ooooh Mann ...");
           
         } else {
