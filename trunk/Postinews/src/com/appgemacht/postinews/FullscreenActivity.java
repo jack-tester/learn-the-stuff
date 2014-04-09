@@ -6,18 +6,22 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import com.appgemacht.postinews.util.SystemUiHider;
+import java.nio.charset.Charset;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.StrictMode;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
+
+import com.appgemacht.postinews.util.SystemUiHider;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -54,6 +58,34 @@ public class FullscreenActivity extends Activity {
    */
   private SystemUiHider mSystemUiHider;
 
+  private String postiNews;
+  private static final String SLOGAN_START = "{\"text\":";
+  private static final String SLOGAN_END = "\",";
+  private int remainingPostiNewsSlogans = 0;
+  
+  private int lastSloganStartIndex = 0;
+  private int lastSloganEndIndex = 0;
+  
+  private Object context;
+
+  private String getPostiNews(InputStream in) {
+    String line = "";
+    BufferedReader reader = null;
+    reader = new BufferedReader(new InputStreamReader(in,Charset.forName("UTF-8")));
+    if (reader != null) {
+      try {
+//          while ((line = reader.readLine()) != null) {
+//            System.out.println(line);
+//          }
+        line = reader.readLine();
+        reader.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    return line;
+  }
+  
   private void readStream(InputStream in) {
     BufferedReader reader = null;
     try {
@@ -140,23 +172,49 @@ public class FullscreenActivity extends Activity {
            */
           TextView tv;
           tv = (TextView) findViewById(R.id.fullscreen_content);//="@+id/fullscreen_content")
-          tv.setText("Ooooh Mann ...");
           
-          try {
-//            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-//            StrictMode.setThreadPolicy(policy); 
-            URL url = new URL("http://www.der-postillion.de/ticker/newsticker2.php");
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            InputStream inpStream = con.getInputStream();
-            // the following call prints the returned string to the console 
-            // !!!!!!!!!!!!!!!!!!!!!!!!
-            readStream(inpStream);
-          } catch (Exception e) {
-              e.printStackTrace();
-          }          
+          if (remainingPostiNewsSlogans > 0) {
+            
+            lastSloganStartIndex = postiNews.indexOf(SLOGAN_START,lastSloganStartIndex) + SLOGAN_START.length() + "\"".length();
+            lastSloganEndIndex = postiNews.indexOf(SLOGAN_END,lastSloganStartIndex); 
+                
+            String postiNewsSlogan = postiNews.substring( lastSloganStartIndex, lastSloganEndIndex );
+
+            tv.setText(postiNewsSlogan);
+
+            remainingPostiNewsSlogans--;
+            
+          } else {            
+            try {
+              // StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+              // StrictMode.setThreadPolicy(policy); 
+              URL url = new URL("http://www.der-postillion.de/ticker/newsticker2.php");
+              HttpURLConnection con = (HttpURLConnection) url.openConnection();
+              InputStream inpStream = con.getInputStream();
+              // the following call prints the returned string to the console 
+              // !!!!!!!!!!!!!!!!!!!!!!!!
+              postiNews = getPostiNews(inpStream);
+              
+              // scan news for number of slogans ...
+              {
+                int lastIdx = 0;
+                
+                while(lastIdx != -1) {
+                  lastIdx = postiNews.indexOf(SLOGAN_START,lastIdx);
+                  if (lastIdx != -1) {
+                    remainingPostiNewsSlogans ++;
+                    lastIdx += SLOGAN_START.length();
+                  }
+                }
+                System.out.println(remainingPostiNewsSlogans);
+              }
+              
+            } catch (Exception e) {
+                e.printStackTrace();
+            }          
           
-          tv.setText("Ooooh Mann ...");
-          
+            tv.setText("Ooooh Mann ...\n "+String.valueOf(remainingPostiNewsSlogans)+" neue Nachrichten\n vom Postillion !");
+          }
         } else {
           mSystemUiHider.show();
         }
@@ -167,6 +225,27 @@ public class FullscreenActivity extends Activity {
     // operations to prevent the jarring behavior of controls going away
     // while interacting with the UI.
     findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+    
+    // check internet connectivity and try to enable WLAN if not yet connected ...
+    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+
+    if (netInfo != null)
+    {
+      TextView tv;
+      tv = (TextView) findViewById(R.id.fullscreen_content);//="@+id/fullscreen_content")
+      if (netInfo.isConnectedOrConnecting()) {
+        tv.setText("yeapi-ya-ya--yeapi-ya-ya-yeeeee !!");
+      } else {
+        tv.setText("... ???");
+        
+        WifiManager wifiManager = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+        wifiManager.setWifiEnabled(true);
+      }    
+    } else {
+      WifiManager wifiManager = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+      wifiManager.setWifiEnabled(true);
+    }
   }
 
   @Override
