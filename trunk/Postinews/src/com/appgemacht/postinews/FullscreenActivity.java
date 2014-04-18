@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Scanner;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -17,6 +19,7 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -71,7 +74,7 @@ public class FullscreenActivity extends Activity {
   private String getPostiNews(InputStream in) {
     String line = "";
     BufferedReader reader = null;
-    reader = new BufferedReader(new InputStreamReader(in,Charset.forName("UTF-8")));
+    reader = new BufferedReader(new InputStreamReader(in/*,Charset.forName("UTF-8")*/));
     if (reader != null) {
       try {
 //          while ((line = reader.readLine()) != null) {
@@ -86,26 +89,26 @@ public class FullscreenActivity extends Activity {
     return line;
   }
   
-  private void readStream(InputStream in) {
-    BufferedReader reader = null;
-    try {
-      reader = new BufferedReader(new InputStreamReader(in));
-      String line = "";
-      while ((line = reader.readLine()) != null) {
-        System.out.println(line);
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      if (reader != null) {
-        try {
-          reader.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-    }
-  }   
+//  private void readStream(InputStream in) {
+//    BufferedReader reader = null;
+//    try {
+//      reader = new BufferedReader(new InputStreamReader(in));
+//      String line = "";
+//      while ((line = reader.readLine()) != null) {
+//        System.out.println(line);
+//      }
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    } finally {
+//      if (reader != null) {
+//        try {
+//          reader.close();
+//        } catch (IOException e) {
+//          e.printStackTrace();
+//        }
+//      }
+//    }
+//  }   
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -174,14 +177,34 @@ public class FullscreenActivity extends Activity {
           tv = (TextView) findViewById(R.id.fullscreen_content);//="@+id/fullscreen_content")
           
           if (remainingPostiNewsSlogans > 0) {
-            
             lastSloganStartIndex = postiNews.indexOf(SLOGAN_START,lastSloganStartIndex) + SLOGAN_START.length() + "\"".length();
             lastSloganEndIndex = postiNews.indexOf(SLOGAN_END,lastSloganStartIndex); 
                 
             String postiNewsSlogan = postiNews.substring( lastSloganStartIndex, lastSloganEndIndex );
+            
+            Log.v("PostiNews",postiNewsSlogan);
+            System.out.print(postiNewsSlogan);
 
-            tv.setText(postiNewsSlogan);
-
+            {
+              // following code idea found at "http://stackoverflow.com/questions/12640106/android-unicode-to-readable-string"
+              //  As not the whole, but just a few char's in postiNewsSlogan's are represented as unicode strings
+              //  we need to manually detect and convert them ...
+              Scanner scanner =  new Scanner(postiNewsSlogan);
+              String unicodeCharStr;
+              char unicodeChar;
+              
+              while(true) {
+                unicodeCharStr = scanner.findWithinHorizon("\\\\{1}u[0-9a-fA-F]{4}", 0);
+                if (unicodeCharStr == null) break;
+                unicodeChar = (char)(int)Integer.valueOf(unicodeCharStr.substring(2, 6), 16);
+                postiNewsSlogan = postiNewsSlogan.replace(unicodeCharStr, unicodeChar+"");
+              }
+            }
+            
+            CharSequence cs = postiNewsSlogan.subSequence(0, postiNewsSlogan.length());
+            
+            tv.setText(cs);
+            
             remainingPostiNewsSlogans--;
             
           } else {            
@@ -189,11 +212,15 @@ public class FullscreenActivity extends Activity {
               // StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
               // StrictMode.setThreadPolicy(policy); 
               URL url = new URL("http://www.der-postillion.de/ticker/newsticker2.php");
-              HttpURLConnection con = (HttpURLConnection) url.openConnection();
-              InputStream inpStream = con.getInputStream();
+//              HttpURLConnection con = (HttpURLConnection) url.openConnection();
+//              InputStream inpStream = con.getInputStream();
+
+              BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));              
+              postiNews = in.readLine();
+              
               // the following call prints the returned string to the console 
               // !!!!!!!!!!!!!!!!!!!!!!!!
-              postiNews = getPostiNews(inpStream);
+//              postiNews = getPostiNews(inpStream);
               
               // scan news for number of slogans ...
               {
@@ -213,7 +240,7 @@ public class FullscreenActivity extends Activity {
                 e.printStackTrace();
             }          
           
-            tv.setText("Ooooh Mann ...\n "+String.valueOf(remainingPostiNewsSlogans)+" neue Nachrichten\n vom Postillion !");
+            tv.setText(" ...\n "+String.valueOf(remainingPostiNewsSlogans)+" neue Nachrichten\n vom Postillion !");
           }
         } else {
           mSystemUiHider.show();
@@ -235,7 +262,7 @@ public class FullscreenActivity extends Activity {
       TextView tv;
       tv = (TextView) findViewById(R.id.fullscreen_content);//="@+id/fullscreen_content")
       if (netInfo.isConnectedOrConnecting()) {
-        tv.setText("yeapi-ya-ya--yeapi-ya-ya-yeeeee !!");
+        tv.setText("yeapi-ya-ya--yeapi-yeapi--yaeaeeee !!");
       } else {
         tv.setText("... ???");
         
