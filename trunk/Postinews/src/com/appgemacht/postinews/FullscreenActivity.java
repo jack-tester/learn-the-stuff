@@ -62,53 +62,15 @@ public class FullscreenActivity extends Activity {
   private SystemUiHider mSystemUiHider;
 
   private String postiNews;
+  private static final String POSTINEWS_URL = "http://www.der-postillion.de/ticker/newsticker2.php";
   private static final String SLOGAN_START = "{\"text\":";
   private static final String SLOGAN_END = "\",";
+  private static final String UNICODE_POINT_PATTERN = "\\\\{1}u[0-9a-fA-F]{4}";
   private int remainingPostiNewsSlogans = 0;
   
   private int lastSloganStartIndex = 0;
   private int lastSloganEndIndex = 0;
   
-  private Object context;
-
-  private String getPostiNews(InputStream in) {
-    String line = "";
-    BufferedReader reader = null;
-    reader = new BufferedReader(new InputStreamReader(in/*,Charset.forName("UTF-8")*/));
-    if (reader != null) {
-      try {
-//          while ((line = reader.readLine()) != null) {
-//            System.out.println(line);
-//          }
-        line = reader.readLine();
-        reader.close();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
-    return line;
-  }
-  
-//  private void readStream(InputStream in) {
-//    BufferedReader reader = null;
-//    try {
-//      reader = new BufferedReader(new InputStreamReader(in));
-//      String line = "";
-//      while ((line = reader.readLine()) != null) {
-//        System.out.println(line);
-//      }
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//    } finally {
-//      if (reader != null) {
-//        try {
-//          reader.close();
-//        } catch (IOException e) {
-//          e.printStackTrace();
-//        }
-//      }
-//    }
-//  }   
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -119,6 +81,7 @@ public class FullscreenActivity extends Activity {
     final View controlsView = findViewById(R.id.fullscreen_content_controls);
     final View contentView = findViewById(R.id.fullscreen_content);
 
+    
     // Set up an instance of SystemUiHider to control the system UI for
     // this activity.
     mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
@@ -160,6 +123,7 @@ public class FullscreenActivity extends Activity {
           }
         });
 
+    
     // Set up the user interaction to manually show or hide the system UI.
     contentView.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -185,6 +149,7 @@ public class FullscreenActivity extends Activity {
             Log.v("PostiNews",postiNewsSlogan);
             System.out.print(postiNewsSlogan);
 
+            // replace unicode code points with 'deutsche Umlaute'
             {
               // following code idea found at "http://stackoverflow.com/questions/12640106/android-unicode-to-readable-string"
               //  As not the whole, but just a few char's in postiNewsSlogan's are represented as unicode strings
@@ -194,12 +159,18 @@ public class FullscreenActivity extends Activity {
               char unicodeChar;
               
               while(true) {
-                unicodeCharStr = scanner.findWithinHorizon("\\\\{1}u[0-9a-fA-F]{4}", 0);
+                unicodeCharStr = scanner.findWithinHorizon(UNICODE_POINT_PATTERN, 0); // horizon=0 -> search in whole scanner input
                 if (unicodeCharStr == null) break;
                 unicodeChar = (char)(int)Integer.valueOf(unicodeCharStr.substring(2, 6), 16);
                 postiNewsSlogan = postiNewsSlogan.replace(unicodeCharStr, unicodeChar+"");
               }
             }
+            // replace the 2 back slash that proceed the quotation mark with just one back slash equipped quotation mark
+            postiNewsSlogan = postiNewsSlogan.replaceAll("\\\\\"", "\"");
+            // resolve HTML code of '&'
+            postiNewsSlogan = postiNewsSlogan.replaceAll("&amp;", "&");
+            // resolve further HTML like codes starting with '&#'
+            // ...todo...
             
             CharSequence cs = postiNewsSlogan.subSequence(0, postiNewsSlogan.length());
             
@@ -211,16 +182,14 @@ public class FullscreenActivity extends Activity {
             try {
               // StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
               // StrictMode.setThreadPolicy(policy); 
-              URL url = new URL("http://www.der-postillion.de/ticker/newsticker2.php");
+              URL url = new URL(POSTINEWS_URL);
 //              HttpURLConnection con = (HttpURLConnection) url.openConnection();
 //              InputStream inpStream = con.getInputStream();
 
               BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));              
               postiNews = in.readLine();
               
-              // the following call prints the returned string to the console 
-              // !!!!!!!!!!!!!!!!!!!!!!!!
-//              postiNews = getPostiNews(inpStream);
+              Log.v("PostiNews",postiNews);
               
               // scan news for number of slogans ...
               {
@@ -233,13 +202,14 @@ public class FullscreenActivity extends Activity {
                     lastIdx += SLOGAN_START.length();
                   }
                 }
-                System.out.println(remainingPostiNewsSlogans);
               }
               
             } catch (Exception e) {
                 e.printStackTrace();
             }          
           
+            lastSloganStartIndex = 0;
+            lastSloganEndIndex = 0;
             tv.setText(" ...\n "+String.valueOf(remainingPostiNewsSlogans)+" neue Nachrichten\n vom Postillion !");
           }
         } else {
@@ -253,7 +223,7 @@ public class FullscreenActivity extends Activity {
     // while interacting with the UI.
     findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
     
-    // check internet connectivity and try to enable WLAN if not yet connected ...
+    // check Internet connectivity and try to enable WLAN if not yet connected ...
     ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo netInfo = cm.getActiveNetworkInfo();
 
