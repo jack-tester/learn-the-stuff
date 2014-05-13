@@ -128,40 +128,93 @@ public class FullscreenActivity extends Activity {
     contentView.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-//        if (TOGGLE_ON_CLICK) {
-//          mSystemUiHider.toggle();
+        if (TOGGLE_ON_CLICK) {
+          mSystemUiHider.toggle();
          
           /**
            * change the text displayed in the back of the view ...
+           * (later one I would like to display stuff from 
+           *    http://www.der-postillion.de/ticker/newsticker2.php
+           *  here)
            */
           TextView tv;
           tv = (TextView) findViewById(R.id.fullscreen_content);//="@+id/fullscreen_content")
           
           if (remainingPostiNewsSlogans > 0) {
+            lastSloganStartIndex = postiNews.indexOf(SLOGAN_START,lastSloganStartIndex) + SLOGAN_START.length() + "\"".length();
+            lastSloganEndIndex = postiNews.indexOf(SLOGAN_END,lastSloganStartIndex); 
+                
+            String postiNewsSlogan = postiNews.substring( lastSloganStartIndex, lastSloganEndIndex );
             
-            String nextSlogan = getNextSlogan();
-            tv.setText(nextSlogan.subSequence(0, nextSlogan.length()));
-            remainingPostiNewsSlogans--;
+            Log.v("PostiNews",postiNewsSlogan);
+            System.out.print(postiNewsSlogan);
 
+            // replace unicode code points with 'deutsche Umlaute'
+            {
+              // following code idea found at "http://stackoverflow.com/questions/12640106/android-unicode-to-readable-string"
+              //  As not the whole, but just a few char's in postiNewsSlogan's are represented as unicode strings
+              //  we need to manually detect and convert them ...
+              Scanner scanner =  new Scanner(postiNewsSlogan);
+              String unicodeCharStr;
+              char unicodeChar;
+              
+              while(true) {
+                unicodeCharStr = scanner.findWithinHorizon(UNICODE_POINT_PATTERN, 0); // horizon=0 -> search in whole scanner input
+                if (unicodeCharStr == null) break;
+                unicodeChar = (char)(int)Integer.valueOf(unicodeCharStr.substring(2, 6), 16);
+                postiNewsSlogan = postiNewsSlogan.replace(unicodeCharStr, unicodeChar+"");
+              }
+            }
+            // replace the 2 back slash that proceed the quotation mark with just one back slash equipped quotation mark
+            postiNewsSlogan = postiNewsSlogan.replaceAll("\\\\\"", "\"");
+            // resolve HTML code of '&'
+            postiNewsSlogan = postiNewsSlogan.replaceAll("&amp;", "&");
+            // resolve further HTML like codes starting with '&#'
+            // ...todo...
+            
+            CharSequence cs = postiNewsSlogan.subSequence(0, postiNewsSlogan.length());
+            
+            tv.setText(cs);
+            
+            remainingPostiNewsSlogans--;
+            
           } else {            
             try {
+              // StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+              // StrictMode.setThreadPolicy(policy); 
               URL url = new URL(POSTINEWS_URL);
-              BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+//              HttpURLConnection con = (HttpURLConnection) url.openConnection();
+//              InputStream inpStream = con.getInputStream();
+
+              BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));              
+              postiNews = in.readLine();
               
-              remainingPostiNewsSlogans = getNumberOfSlogans(in.readLine());
-                            
+              Log.v("PostiNews",postiNews);
+              
+              // scan news for number of slogans ...
+              {
+                int lastIdx = 0;
+                
+                while(lastIdx != -1) {
+                  lastIdx = postiNews.indexOf(SLOGAN_START,lastIdx);
+                  if (lastIdx != -1) {
+                    remainingPostiNewsSlogans ++;
+                    lastIdx += SLOGAN_START.length();
+                  }
+                }
+              }
+              
             } catch (Exception e) {
-              e.printStackTrace();
+                e.printStackTrace();
             }          
           
             lastSloganStartIndex = 0;
             lastSloganEndIndex = 0;
-            
             tv.setText(" ...\n "+String.valueOf(remainingPostiNewsSlogans)+" neue Nachrichten\n vom Postillion !");
           }
-//        } else {
-//          mSystemUiHider.show();
-//        }
+        } else {
+          mSystemUiHider.show();
+        }
       }
     });
 
@@ -233,66 +286,4 @@ public class FullscreenActivity extends Activity {
     mHideHandler.removeCallbacks(mHideRunnable);
     mHideHandler.postDelayed(mHideRunnable, delayMillis);
   }
-
-  /**
-   * 
-   * @param postiNews - String returned by the PHP page of Postillion web site
-   * @return number of slogans within the String parameter
-   */
-  private int getNumberOfSlogans(String postiNews) {
-    Log.v("PostiNews",postiNews);
-
-    int numberOfSlogans = 0;
-    int lastIdx = 0;
-    
-    while(lastIdx != -1) {
-      lastIdx = postiNews.indexOf(SLOGAN_START,lastIdx);
-      if (lastIdx != -1) {
-        numberOfSlogans ++;
-        lastIdx += SLOGAN_START.length();
-      }
-    }
-    return numberOfSlogans;
-  }
-
-  /**
-   * Returns the char sequence of the next slogan from postillion's news line.
-   * @return Slogan char sequence
-   */
-  private String getNextSlogan() {
-    lastSloganStartIndex = postiNews.indexOf(SLOGAN_START,lastSloganStartIndex) + SLOGAN_START.length() + "\"".length();
-    lastSloganEndIndex = postiNews.indexOf(SLOGAN_END,lastSloganStartIndex); 
-        
-    String postiNewsSlogan = postiNews.substring( lastSloganStartIndex, lastSloganEndIndex );
-    
-    Log.v("PostiNews",postiNewsSlogan);
-    System.out.print(postiNewsSlogan);
-
-    // replace UniCode code points with 'deutsche Umlaute'
-    {
-      // following code idea found at "http://stackoverflow.com/questions/12640106/android-unicode-to-readable-string"
-      //  As not the whole, but just a few char's in postiNewsSlogan's are represented as unicode strings
-      //  we need to manually detect and convert them ...
-      Scanner scanner =  new Scanner(postiNewsSlogan);
-      String unicodeCharStr;
-      char unicodeChar;
-      
-      while(true) {
-        unicodeCharStr = scanner.findWithinHorizon(UNICODE_POINT_PATTERN, 0); // horizon=0 -> search in whole scanner input
-        if (unicodeCharStr == null) break;
-        unicodeChar = (char)(int)Integer.valueOf(unicodeCharStr.substring(2, 6), 16);
-        postiNewsSlogan = postiNewsSlogan.replace(unicodeCharStr, unicodeChar+"");
-      }
-    }
-    // replace the 2 back slash that proceed the quotation mark with just one back slash equipped quotation mark
-    postiNewsSlogan = postiNewsSlogan.replaceAll("\\\\\"", "\"");
-    // resolve HTML code of '&'
-    postiNewsSlogan = postiNewsSlogan.replaceAll("&amp;", "&");
-    // resolve further HTML like codes starting with '&#'
-    // ...todo...
-
-    return postiNewsSlogan.substring(0, postiNewsSlogan.length());
-    //return postiNewsSlogan.subSequence(0, postiNewsSlogan.length());
-  }
-  
 }
