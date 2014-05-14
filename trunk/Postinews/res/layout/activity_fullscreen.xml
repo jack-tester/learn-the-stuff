@@ -15,10 +15,12 @@
         android:id="@+id/fullscreen_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#33b5e5"
         android:gravity="center"
         android:keepScreenOn="true"
         android:text="@string/dummy_content"
-        android:textColor="#33b5e5"
+        android:textColor="@color/black_overlay"
+        android:textColorLink="#33b5e5"
         android:textSize="50sp"
         android:textStyle="bold" />
 
@@ -41,26 +43,31 @@
             android:background="@color/black_overlay"
             android:orientation="horizontal"
             tools:ignore="UselessParent" >
-
-            <Button
-                android:id="@+id/dummy_button"
-                style="?metaButtonBarButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/dummy_button" />
         </LinearLayout>
 
         <RatingBar
             android:id="@+id/ratingBar1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
+            android:layout_gravity="top|right"
             android:isIndicator="false"
             android:max="0"
             android:progress="0"
             android:rating="0"
             android:stepSize="1" />
+
+        <Button
+            android:id="@+id/button1"
+            style="@style/ButtonBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|fill"
+            android:background="#33b5e5"
+            android:text="@string/system_and_settings_button"
+            android:textColorHint="#33b5e5"
+            android:textColorLink="#33b5e5"
+            android:textSize="36sp"
+            android:textStyle="bold" />
 
     </FrameLayout>
 
