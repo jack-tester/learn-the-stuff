@@ -71,6 +71,20 @@ public class FullscreenActivity extends Activity {
   private int lastSloganStartIndex = 0;
   private int lastSloganEndIndex = 0;
   
+  private boolean netconnected = false;
+  
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    
+    String s;
+    if (netconnected) {
+      s = new String("Nett connected, mein Schatz !");
+    } else {
+      s = new String("Net connected, mei' Schatz'le !");
+    }
+    Log.v("INITIAL_NET_CONNECT_STATE: ",s);
+  }
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -232,6 +246,7 @@ public class FullscreenActivity extends Activity {
       TextView tv;
       tv = (TextView) findViewById(R.id.fullscreen_content);//="@+id/fullscreen_content")
       if (netInfo.isConnectedOrConnecting()) {
+        netconnected = true;
         tv.setText("yeapi-ya-ya--yeapi-yeapi--yaeaeeee !!");
       } else {
         tv.setText("... ???");
