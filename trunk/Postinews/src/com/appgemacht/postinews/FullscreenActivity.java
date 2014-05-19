@@ -26,6 +26,7 @@ import android.view.View;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.appgemacht.postinews.util.ExternalPostiSloganStorage;
 import com.appgemacht.postinews.util.SystemUiHider;
 
 /**
@@ -77,6 +78,7 @@ public class FullscreenActivity extends Activity {
   
   // the rating bar object must be reset by opening next slogan
   private static RatingBar postiNewsRating = null;
+  private static ExternalPostiSloganStorage sloganStorage = null;
 
   @Override
   protected void onDestroy() {
@@ -113,6 +115,13 @@ public class FullscreenActivity extends Activity {
     // initiate and reset the rating bar
     postiNewsRating = (RatingBar) findViewById(R.id.postiNewsRating);
     postiNewsRating.setRating(0);
+    
+    // check external storage capabilities
+    sloganStorage = new ExternalPostiSloganStorage();
+    if (! sloganStorage.isWritable()) {
+      ///// TODO - check, what could be done towards HMI counter part to follow up appropriately ...
+      exit();
+    }
 
     // add the 'store slogan' method as a rating bar listener ...
 //    addListenerOnRatingBar();
@@ -286,6 +295,11 @@ public class FullscreenActivity extends Activity {
       WifiManager wifiManager = (WifiManager)getSystemService(Context.WIFI_SERVICE);
       wifiManager.setWifiEnabled(true);
     }
+  }
+
+  private void exit() {
+    // TODO Auto-generated method stub
+    
   }
 
   @Override
