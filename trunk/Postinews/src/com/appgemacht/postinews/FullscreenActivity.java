@@ -10,6 +10,7 @@ import java.net.URL;
 //import java.nio.charset.Charset;
 import java.util.Scanner;
 
+
 //import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -22,6 +23,7 @@ import android.os.Bundle;
 import android.util.Log;
 //import android.view.MotionEvent;
 import android.view.View;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.appgemacht.postinews.util.SystemUiHider;
@@ -73,6 +75,9 @@ public class FullscreenActivity extends Activity {
   
   private boolean netconnected = false;
   
+  // the rating bar object must be reset by opening next slogan
+  private static RatingBar postiNewsRating = null;
+
   @Override
   protected void onDestroy() {
     super.onDestroy();
@@ -86,12 +91,32 @@ public class FullscreenActivity extends Activity {
     Log.v("INITIAL_NET_CONNECT_STATE: ",s);
   }
   
+//  public void addListenerOnRatingBar() {
+//    postiNewsRating = (RatingBar) findViewById(R.id.postiNewsRating);
+//    
+//    postiNewsRating.setOnRatingBarChangeListener(new OnRatingBarChangeListener() {
+//      @Override
+//      public void onRatingChanged(RatingBar ratingBar, float rating,
+//          boolean fromUser) {
+//        
+//      }
+//    });
+//  }
+  
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
+    // determine the content view that's active ...
     setContentView(R.layout.activity_fullscreen);
 
+    // initiate and reset the rating bar
+    postiNewsRating = (RatingBar) findViewById(R.id.postiNewsRating);
+    postiNewsRating.setRating(0);
+
+    // add the 'store slogan' method as a rating bar listener ...
+//    addListenerOnRatingBar();
+    
 //    final View controlsView = findViewById(R.id.fullscreen_content_controls);
     final View contentView = findViewById(R.id.fullscreen_content);
 
@@ -191,6 +216,9 @@ public class FullscreenActivity extends Activity {
             tv.setText(cs);
             
             remainingPostiNewsSlogans--;
+            
+            // choosing a new slogan will reset the rating ...
+            postiNewsRating.setRating(0);
             
           } else {            
             try {
