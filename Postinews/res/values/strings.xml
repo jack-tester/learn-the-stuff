@@ -4,6 +4,8 @@
     <string name="app_name">Postinews</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
-    <string name="system_and_settings_button">#</string>
+    <string name="ib_activity_offline_contentDescription">zeige gespeicherte News &#8230;</string>
+    <string name="ib_system_menue_contentDescription">zeige System Menue &#8230;</string>
+    <string name="ib_online_activity_contentDescription">gehe zurück zum Online Modus &#8230;</string>
 
 </resources>
