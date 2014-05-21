@@ -84,10 +84,14 @@ public class FullscreenActivity extends Activity {
   protected void onDestroy() {
     super.onDestroy();
     
+    // restore the original Wifi status ... and print a log message about the final state
     String s;
     if (netconnected) {
       s = new String("Nett connected, mein Schatz !");
     } else {
+      WifiManager wifiManager = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+      wifiManager.setWifiEnabled(false);
+
       s = new String("Net connected, mei' Schatz'le !");
     }
     Log.v("INITIAL_NET_CONNECT_STATE: ",s);
