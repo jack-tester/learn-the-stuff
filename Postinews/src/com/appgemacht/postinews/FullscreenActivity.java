@@ -1,6 +1,7 @@
 package com.appgemacht.postinews;
 
 import java.io.BufferedReader;
+import java.io.File;
 //import java.io.IOException;
 //import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -78,7 +79,7 @@ public class FullscreenActivity extends Activity {
   
   // the rating bar object must be reset by opening next slogan
   private static RatingBar postiNewsRating = null;
-  private static ExternalPostiSloganStorage sloganStorage = null;
+//  private static ExternalPostiSloganStorage sloganStorage = null;
 
   @Override
   protected void onDestroy() {
@@ -109,6 +110,8 @@ public class FullscreenActivity extends Activity {
 //    });
 //  }
   
+  private ExternalPostiSloganStorage sloganStorage;
+  
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -124,8 +127,11 @@ public class FullscreenActivity extends Activity {
     sloganStorage = new ExternalPostiSloganStorage();
     if (! sloganStorage.isWritable()) {
       ///// TODO - check, what could be done towards HMI counter part to follow up appropriately ...
+      Log.e("EXTERNAL_STORAGE_STATE: ","not writable !");
       exit();
     }
+    
+    sloganStorage.openFile();
 
     // add the 'store slogan' method as a rating bar listener ...
 //    addListenerOnRatingBar();
@@ -232,6 +238,8 @@ public class FullscreenActivity extends Activity {
             
             // choosing a new slogan will reset the rating ...
             postiNewsRating.setRating(0);
+            
+            sloganStorage.writeTo(cs.toString(),5);
             
           } else {            
             try {
