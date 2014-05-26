@@ -29,6 +29,11 @@ public class ExternalPostiSloganStorage {
     return false;
   }
   
+  /**
+   * The 'PostiNewsDir' is located as follows:
+   *  /mnt/sdcard/download/
+   *  
+   */
   public void openFile() {
     
     File postiNewsDir = new File(Environment.getExternalStoragePublicDirectory(
@@ -68,7 +73,7 @@ public class ExternalPostiSloganStorage {
    * @param slogan ... slogan rated
    * @param rating ... rating
    */ 
-  public void writeTo(String slogan, int rating) {
+  public void write(String slogan, int rating) {
 
     int hash = slogan.hashCode();
     

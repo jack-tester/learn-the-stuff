@@ -66,6 +66,7 @@ public class FullscreenActivity extends Activity {
 //  private SystemUiHider mSystemUiHider;
 
   private String postiNews;
+  private String postiNewsSlogan;
   private static final String POSTINEWS_URL = "http://www.der-postillion.de/ticker/newsticker2.php";
   private static final String SLOGAN_START = "{\"text\":";
   private static final String SLOGAN_END = "\",";
@@ -181,6 +182,22 @@ public class FullscreenActivity extends Activity {
 //          }
 //        });
 
+    postiNewsRating.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+      @Override
+      public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+
+        // choosing a new slogan will reset the rating ...
+        int r = (int) rating;
+        if (r > 0)
+        {
+          sloganStorage.write(postiNewsSlogan,r);
+          Log.v("PostiNews ","stored with rating " + r + "\n");
+        } else {
+          Log.v("PostiNews ","not stored\n");
+        }
+        
+      }
+    });
     
     // Set up the user interaction to manually show or hide the system UI.
     contentView.setOnClickListener(new View.OnClickListener() {
@@ -199,10 +216,11 @@ public class FullscreenActivity extends Activity {
           tv = (TextView) findViewById(R.id.fullscreen_content);//="@+id/fullscreen_content")
           
           if (remainingPostiNewsSlogans > 0) {
+            
             lastSloganStartIndex = postiNews.indexOf(SLOGAN_START,lastSloganStartIndex) + SLOGAN_START.length() + "\"".length();
             lastSloganEndIndex = postiNews.indexOf(SLOGAN_END,lastSloganStartIndex); 
                 
-            String postiNewsSlogan = postiNews.substring( lastSloganStartIndex, lastSloganEndIndex );
+            postiNewsSlogan = postiNews.substring( lastSloganStartIndex, lastSloganEndIndex );
             
             Log.v("PostiNews",postiNewsSlogan);
             System.out.print(postiNewsSlogan);
@@ -231,15 +249,11 @@ public class FullscreenActivity extends Activity {
             // ...todo...
             
             CharSequence cs = postiNewsSlogan.subSequence(0, postiNewsSlogan.length());
-            
             tv.setText(cs);
             
             remainingPostiNewsSlogans--;
             
-            // choosing a new slogan will reset the rating ...
             postiNewsRating.setRating(0);
-            
-            sloganStorage.writeTo(cs.toString(),5);
             
           } else {            
             try {
