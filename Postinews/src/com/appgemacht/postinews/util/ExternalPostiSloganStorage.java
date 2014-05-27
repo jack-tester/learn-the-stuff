@@ -1,7 +1,9 @@
 package com.appgemacht.postinews.util;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 
@@ -39,7 +41,7 @@ public class ExternalPostiSloganStorage {
     File postiNewsDir = new File(Environment.getExternalStoragePublicDirectory(
         Environment.DIRECTORY_DOWNLOADS), "PostiNewsDir");
     postiNewsFile = new File(
-        postiNewsDir, "PostiNews.5.txt");
+        postiNewsDir, "PostiNews.txt");
     
     if (!postiNewsDir.isDirectory()) {
       if (!postiNewsDir.mkdirs()) {
@@ -58,13 +60,36 @@ public class ExternalPostiSloganStorage {
     
     postiNewsFileSize = postiNewsFile.length();
     Log.i("POSTI_STORAGE: ", "File length "+postiNewsFileSize);
-    
+
+    // read in the hashes of already stored slogans ...
+    try {
+      FileReader r = new FileReader(postiNewsFile);
+      BufferedReader br = new BufferedReader(r);
+      
+      hashesOfStoredSlogans = new ArrayList<Integer>();
+      
+      String line;
+      do {
+        line = br.readLine();
+        if (line == null) {
+          break;
+        }
+        int hash = Integer.parseInt(line.substring(2,line.indexOf(",",2)));
+//        Log.i("POSTI_STORAGE: ", "hash "+hash+" found.");
+        hashesOfStoredSlogans.add(hash);
+      } while (true);
+      Log.i("POSTI_STORAGE: ", "read in "+hashesOfStoredSlogans.size()+" hashes.");
+      
+      br.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
   
   /**
    * storage format:
-   * '<posti news slogan>',<hash code>[,... for future use]
-   * '<posti news slogan>',<hash code>[,... for future use]
+   * <rating>,<hash code>,"<posti news slogan>"[,... for future use]
+   * <rating>,<hash code>,"<posti news slogan>"[,... for future use]
    * - one file per rating 1..5
    * - all files will be scanned at startup to read in all the hashes
    *   -> already stored slogans will not be stored again
@@ -77,11 +102,20 @@ public class ExternalPostiSloganStorage {
 
     int hash = slogan.hashCode();
     
-    int maxLineLen2store = slogan.length() + 16; // 16 = 2 x '"' + 1 x ',' + 1 x <integer> + EOL
+    for (int h : hashesOfStoredSlogans) {
+      if (h == hash) {
+        Log.i("POSTI_STORAGE: ", "that slogan is already stored !");
+        return;
+      }
+    }      
+    
+    int maxLineLen2store = slogan.length() + 32; // 32 = 1 * [0..9] + 2 * '"' + 2 * ',' + 1 * <integer> + EOL
     StringBuilder line2store = new StringBuilder(maxLineLen2store);
     
-    line2store.append("\""+slogan+"\",");
+    line2store.append(rating);
+    line2store.append(",");
     line2store.append(hash);
+    line2store.append(",\"" + slogan + "\"");
     
     try {
 //      FileReader r = new FileReader(postiNewsFile);
@@ -96,6 +130,9 @@ public class ExternalPostiSloganStorage {
       bw.append(line2store);
       bw.newLine();
       bw.close();
+      
+      hashesOfStoredSlogans.add(hash);
+      
     } catch (Exception e) {
       e.printStackTrace();
     }
