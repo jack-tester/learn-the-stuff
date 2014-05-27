@@ -67,6 +67,8 @@ public class FullscreenActivity extends Activity {
 
   private String postiNews;
   private String postiNewsSlogan;
+  private int postiNewsSloganRating; 
+  
   private static final String POSTINEWS_URL = "http://www.der-postillion.de/ticker/newsticker2.php";
   private static final String SLOGAN_START = "{\"text\":";
   private static final String SLOGAN_END = "\",";
@@ -99,18 +101,6 @@ public class FullscreenActivity extends Activity {
     Log.v("INITIAL_NET_CONNECT_STATE: ",s);
   }
   
-//  public void addListenerOnRatingBar() {
-//    postiNewsRating = (RatingBar) findViewById(R.id.postiNewsRating);
-//    
-//    postiNewsRating.setOnRatingBarChangeListener(new OnRatingBarChangeListener() {
-//      @Override
-//      public void onRatingChanged(RatingBar ratingBar, float rating,
-//          boolean fromUser) {
-//        
-//      }
-//    });
-//  }
-  
   private ExternalPostiSloganStorage sloganStorage;
   
   @Override
@@ -134,12 +124,7 @@ public class FullscreenActivity extends Activity {
     
     sloganStorage.openFile();
 
-    // add the 'store slogan' method as a rating bar listener ...
-//    addListenerOnRatingBar();
-    
-//    final View controlsView = findViewById(R.id.fullscreen_content_controls);
     final View contentView = findViewById(R.id.fullscreen_content);
-
     
     // Set up an instance of SystemUiHider to control the system UI for
     // this activity.
@@ -190,10 +175,11 @@ public class FullscreenActivity extends Activity {
         int r = (int) rating;
         if (r > 0)
         {
-          sloganStorage.write(postiNewsSlogan,r);
-          Log.v("PostiNews ","stored with rating " + r + "\n");
-        } else {
-          Log.v("PostiNews ","not stored\n");
+          postiNewsSloganRating = r;
+//          sloganStorage.write(postiNewsSlogan,r);
+//          Log.v("PostiNews ","stored with rating " + r + "\n");
+//        } else {
+//          Log.v("PostiNews ","not stored\n");
         }
         
       }
@@ -216,7 +202,15 @@ public class FullscreenActivity extends Activity {
           tv = (TextView) findViewById(R.id.fullscreen_content);//="@+id/fullscreen_content")
           
           if (remainingPostiNewsSlogans > 0) {
+            /* store the currently displayed slogan */
+            if (postiNewsSloganRating > 0) {
+              sloganStorage.write(postiNewsSlogan,postiNewsSloganRating);
+              Log.v("PostiNews ","stored with rating " + postiNewsSloganRating + "\n");
+            } else {
+              Log.v("PostiNews ","not stored\n");
+            }
             
+            /* display the next slogan */
             lastSloganStartIndex = postiNews.indexOf(SLOGAN_START,lastSloganStartIndex) + SLOGAN_START.length() + "\"".length();
             lastSloganEndIndex = postiNews.indexOf(SLOGAN_END,lastSloganStartIndex); 
                 
@@ -254,14 +248,11 @@ public class FullscreenActivity extends Activity {
             remainingPostiNewsSlogans--;
             
             postiNewsRating.setRating(0);
+            postiNewsSloganRating = 0;
             
           } else {            
             try {
-              // StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-              // StrictMode.setThreadPolicy(policy); 
               URL url = new URL(POSTINEWS_URL);
-//              HttpURLConnection con = (HttpURLConnection) url.openConnection();
-//              InputStream inpStream = con.getInputStream();
 
               BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));              
               postiNews = in.readLine();

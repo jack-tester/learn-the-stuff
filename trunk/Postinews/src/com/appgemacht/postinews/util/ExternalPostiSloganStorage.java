@@ -19,7 +19,7 @@ public class ExternalPostiSloganStorage {
   private long postiNewsFileSize;
   
   /**
-   * To check writeability of external storage acc. to
+   * To check ability to write to external storage acc. to
    *  http://developer.android.com/guide/topics/data/data-storage.html#filesExternal
    * @return
    */
@@ -37,7 +37,6 @@ public class ExternalPostiSloganStorage {
    *  
    */
   public void openFile() {
-    
     File postiNewsDir = new File(Environment.getExternalStoragePublicDirectory(
         Environment.DIRECTORY_DOWNLOADS), "PostiNewsDir");
     postiNewsFile = new File(
@@ -75,7 +74,7 @@ public class ExternalPostiSloganStorage {
           break;
         }
         int hash = Integer.parseInt(line.substring(2,line.indexOf(",",2)));
-//        Log.i("POSTI_STORAGE: ", "hash "+hash+" found.");
+        //Log.i("POSTI_STORAGE: ", "hash "+hash+" found.");
         hashesOfStoredSlogans.add(hash);
       } while (true);
       Log.i("POSTI_STORAGE: ", "read in "+hashesOfStoredSlogans.size()+" hashes.");
@@ -118,11 +117,6 @@ public class ExternalPostiSloganStorage {
     line2store.append(",\"" + slogan + "\"");
     
     try {
-//      FileReader r = new FileReader(postiNewsFile);
-//      BufferedReader bw = new BufferedReader(r);
-//      
-//      bw.
-      
       // the append flag (2nd parameter) makes further output an addition to the existing file
       FileWriter w = new FileWriter(postiNewsFile,true);
       BufferedWriter bw = new BufferedWriter(w);
