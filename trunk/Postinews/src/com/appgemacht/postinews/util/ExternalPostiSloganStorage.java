@@ -85,6 +85,18 @@ public class ExternalPostiSloganStorage {
     }
   }
   
+  
+  public boolean containsStringWithHash(int hash) {
+    for (int h : hashesOfStoredSlogans) {
+      if (h == hash) {
+        Log.i("POSTI_STORAGE: ", "that slogan is already stored !");
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  
   /**
    * storage format:
    * <rating>,<hash code>,"<posti news slogan>"[,... for future use]
@@ -101,12 +113,9 @@ public class ExternalPostiSloganStorage {
 
     int hash = slogan.hashCode();
     
-    for (int h : hashesOfStoredSlogans) {
-      if (h == hash) {
-        Log.i("POSTI_STORAGE: ", "that slogan is already stored !");
-        return;
-      }
-    }      
+    if (this.containsStringWithHash(hash)) {
+      return;
+    }
     
     int maxLineLen2store = slogan.length() + 32; // 32 = 1 * [0..9] + 2 * '"' + 2 * ',' + 1 * <integer> + EOL
     StringBuilder line2store = new StringBuilder(maxLineLen2store);

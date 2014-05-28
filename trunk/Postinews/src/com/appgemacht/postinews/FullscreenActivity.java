@@ -82,6 +82,7 @@ public class FullscreenActivity extends Activity {
   
   // the rating bar object must be reset by opening next slogan
   private static RatingBar postiNewsRating = null;
+  private static TextView postiNewsHint = null;
 //  private static ExternalPostiSloganStorage sloganStorage = null;
 
   @Override
@@ -112,7 +113,10 @@ public class FullscreenActivity extends Activity {
 
     // initiate and reset the rating bar
     postiNewsRating = (RatingBar) findViewById(R.id.postiNewsRating);
+    postiNewsHint = (TextView) findViewById(R.id.postiNewsHint);
     postiNewsRating.setRating(0);
+    postiNewsRating.setVisibility(RatingBar.VISIBLE);
+    postiNewsHint.setVisibility(TextView.INVISIBLE);
     
     // check external storage capabilities
     sloganStorage = new ExternalPostiSloganStorage();
@@ -196,6 +200,7 @@ public class FullscreenActivity extends Activity {
           tv = (TextView) findViewById(R.id.fullscreen_content);//="@+id/fullscreen_content")
           
           if (remainingPostiNewsSlogans > 0) {
+            
             /* store the currently displayed slogan */
             if (postiNewsSloganRating > 0) {
               sloganStorage.write(postiNewsSlogan,postiNewsSloganRating);
@@ -244,7 +249,17 @@ public class FullscreenActivity extends Activity {
             postiNewsRating.setRating(0);
             postiNewsSloganRating = 0;
             
-          } else {            
+            if (sloganStorage.containsStringWithHash(postiNewsSlogan.hashCode())) {
+              postiNewsRating.setVisibility(RatingBar.GONE);
+              postiNewsHint.setText("... das ist schon gespeichtert.");
+              postiNewsHint.setVisibility(TextView.VISIBLE);
+            } else {
+              postiNewsRating.setVisibility(RatingBar.VISIBLE);
+              postiNewsHint.setVisibility(TextView.INVISIBLE);
+            }
+            
+          } else {
+            
             try {
               URL url = new URL(POSTINEWS_URL);
 

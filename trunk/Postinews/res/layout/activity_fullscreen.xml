@@ -72,6 +72,17 @@
             android:contentDescription="@string/ib_system_menue_contentDescription"
             android:src="@android:drawable/arrow_up_float" />
 
+        <TextView
+            android:id="@+id/postiNewsHint"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:gravity="center_horizontal|center_vertical"
+            android:text="TextView"
+            android:textColor="@color/black_overlay"
+            android:typeface="normal"
+            android:visibility="visible" />
+
     </FrameLayout>
 
 </FrameLayout>
