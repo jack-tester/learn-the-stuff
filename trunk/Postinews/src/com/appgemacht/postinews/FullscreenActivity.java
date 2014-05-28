@@ -170,18 +170,12 @@ public class FullscreenActivity extends Activity {
     postiNewsRating.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
       @Override
       public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-
-        // choosing a new slogan will reset the rating ...
-        int r = (int) rating;
-        if (r > 0)
-        {
-          postiNewsSloganRating = r;
-//          sloganStorage.write(postiNewsSlogan,r);
-//          Log.v("PostiNews ","stored with rating " + r + "\n");
-//        } else {
-//          Log.v("PostiNews ","not stored\n");
+        /**
+         * store the newly chosen rating for later storing of the slogan ...
+         */
+        if (rating > 0) {
+          postiNewsSloganRating = (int) rating;
         }
-        
       }
     });
     
@@ -258,11 +252,9 @@ public class FullscreenActivity extends Activity {
               postiNews = in.readLine();
               
               Log.v("PostiNews",postiNews);
-              
               // scan news for number of slogans ...
               {
                 int lastIdx = 0;
-                
                 while(lastIdx != -1) {
                   lastIdx = postiNews.indexOf(SLOGAN_START,lastIdx);
                   if (lastIdx != -1) {
@@ -271,7 +263,6 @@ public class FullscreenActivity extends Activity {
                   }
                 }
               }
-              
             } catch (Exception e) {
                 e.printStackTrace();
             }          
