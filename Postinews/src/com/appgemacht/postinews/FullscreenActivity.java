@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.Scanner;
 
 
+
 //import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -24,6 +25,7 @@ import android.os.Bundle;
 import android.util.Log;
 //import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -67,7 +69,7 @@ public class FullscreenActivity extends Activity {
 
   private String postiNews;
   private String postiNewsSlogan;
-  private int postiNewsSloganRating; 
+  private int postiNewsSloganRating;
   
   private static final String POSTINEWS_URL = "http://www.der-postillion.de/ticker/newsticker2.php";
   private static final String SLOGAN_START = "{\"text\":";
@@ -83,6 +85,7 @@ public class FullscreenActivity extends Activity {
   // the rating bar object must be reset by opening next slogan
   private static RatingBar postiNewsRating = null;
   private static TextView postiNewsHint = null;
+  private static ProgressBar postiNewsProgress = null;
 //  private static ExternalPostiSloganStorage sloganStorage = null;
 
   @Override
@@ -111,11 +114,15 @@ public class FullscreenActivity extends Activity {
     // determine the content view that's active ...
     setContentView(R.layout.activity_fullscreen);
 
-    // initiate and reset the rating bar
+    // initiate and reset the rating bar - it is disabled as long as no slogan is displayed
     postiNewsRating = (RatingBar) findViewById(R.id.postiNewsRating);
     postiNewsHint = (TextView) findViewById(R.id.postiNewsHint);
+    postiNewsProgress = (ProgressBar) findViewById(R.id.progress_goingOnline);
     postiNewsRating.setRating(0);
     postiNewsRating.setVisibility(RatingBar.VISIBLE);
+    postiNewsRating.setEnabled(false);
+    postiNewsProgress.setVisibility(ProgressBar.INVISIBLE);
+    // the hint text is hidden ...
     postiNewsHint.setVisibility(TextView.INVISIBLE);
     
     // check external storage capabilities
@@ -187,7 +194,7 @@ public class FullscreenActivity extends Activity {
     contentView.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        if (TOGGLE_ON_CLICK) {
+//        if (TOGGLE_ON_CLICK) {
 //          mSystemUiHider.toggle();
          
           /**
@@ -261,6 +268,8 @@ public class FullscreenActivity extends Activity {
           } else {
             
             try {
+              postiNewsProgress.setVisibility(ProgressBar.VISIBLE);
+              
               URL url = new URL(POSTINEWS_URL);
 
               BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));              
@@ -284,11 +293,20 @@ public class FullscreenActivity extends Activity {
           
             lastSloganStartIndex = 0;
             lastSloganEndIndex = 0;
-            tv.setText(" ...\n "+String.valueOf(remainingPostiNewsSlogans)+" neue Nachrichten\n vom Postillion !");
+            
+            if (remainingPostiNewsSlogans == 0) {
+              tv.setText(" ...\n tippe nochmal, bitte ... ");
+            } else {
+
+              postiNewsProgress.setVisibility(ProgressBar.INVISIBLE);     
+              
+              tv.setText(" ...\n "+String.valueOf(remainingPostiNewsSlogans)+" neue Postillion News !");
+              postiNewsRating.setEnabled(true);
+            }
           }
-        } else {
+//        } else {
 //          mSystemUiHider.show();
-        }
+//        }
       }
     });
 
@@ -307,16 +325,15 @@ public class FullscreenActivity extends Activity {
       tv = (TextView) findViewById(R.id.fullscreen_content);//="@+id/fullscreen_content")
       if (netInfo.isConnectedOrConnecting()) {
         netconnected = true;
-        tv.setText("yeapi-ya-ya--yeapi-yeapi--yaeaeeee !!");
       } else {
-        tv.setText("... ???");
-        
         WifiManager wifiManager = (WifiManager)getSystemService(Context.WIFI_SERVICE);
         wifiManager.setWifiEnabled(true);
+        postiNewsProgress.setVisibility(ProgressBar.VISIBLE);     
       }    
     } else {
       WifiManager wifiManager = (WifiManager)getSystemService(Context.WIFI_SERVICE);
       wifiManager.setWifiEnabled(true);
+      postiNewsProgress.setVisibility(ProgressBar.VISIBLE);     
     }
   }
 
