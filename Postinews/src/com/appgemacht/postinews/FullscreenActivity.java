@@ -1,14 +1,8 @@
 package com.appgemacht.postinews;
 
 import java.io.BufferedReader;
-import java.io.File;
-//import java.io.IOException;
-//import java.io.InputStream;
 import java.io.InputStreamReader;
-//import java.io.UnsupportedEncodingException;
-//import java.net.HttpURLConnection;
 import java.net.URL;
-//import java.nio.charset.Charset;
 import java.util.Scanner;
 
 
@@ -19,11 +13,8 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
-//import android.os.Build;
 import android.os.Bundle;
-//import android.os.Handler;
 import android.util.Log;
-//import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
