@@ -312,8 +312,6 @@ public class FullscreenActivity extends Activity {
 
     if (netInfo != null)
     {
-      TextView tv;
-      tv = (TextView) findViewById(R.id.fullscreen_content);//="@+id/fullscreen_content")
       if (netInfo.isConnectedOrConnecting()) {
         netconnected = true;
       } else {
