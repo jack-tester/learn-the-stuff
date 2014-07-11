@@ -9,16 +9,21 @@ import java.util.Scanner;
 
 //import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.appgemacht.postinews.util.ExternalPostiSloganStorage;
 import com.appgemacht.postinews.util.SystemUiHider;
@@ -72,6 +77,8 @@ public class FullscreenActivity extends Activity {
   private int lastSloganEndIndex = 0;
   
   private boolean netconnected = false;
+  private int connectingEventsBeforeOwnClick = 1;
+  private boolean clickedOnMyOwn = false;
   
   // the rating bar object must be reset by opening next slogan
   private static RatingBar postiNewsRating = null;
@@ -82,6 +89,8 @@ public class FullscreenActivity extends Activity {
   @Override
   protected void onDestroy() {
     super.onDestroy();
+   
+    this.unregisterReceiver(privBroadcastReceiver);
     
     // restore the original Wifi status ... and print a log message about the final state
     String s;
@@ -98,10 +107,15 @@ public class FullscreenActivity extends Activity {
   
   private ExternalPostiSloganStorage sloganStorage;
   
+  private PostiNewsBroadcastReceiver privBroadcastReceiver;
+  
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
+    privBroadcastReceiver = new PostiNewsBroadcastReceiver();
+    this.registerReceiver(privBroadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    
     // determine the content view that's active ...
     setContentView(R.layout.activity_fullscreen);
 
@@ -116,17 +130,16 @@ public class FullscreenActivity extends Activity {
     // the hint text is hidden ...
     postiNewsHint.setVisibility(TextView.INVISIBLE);
     
-    // check external storage capabilities
+    // check external storage capabilities and if possible, open the file
     sloganStorage = new ExternalPostiSloganStorage();
     if (! sloganStorage.isWritable()) {
-      ///// TODO - check, what could be done towards HMI counter part to follow up appropriately ...
-      Log.e("EXTERNAL_STORAGE_STATE: ","not writable !");
+      Toast.makeText(this, "Kann PostiNews nicht speichern - sorry ...", Toast.LENGTH_LONG).show();
       exit();
     }
-    
     sloganStorage.openFile();
+    //Toast.makeText(this, "PostiNews Datenbank geöffnet ...", Toast.LENGTH_LONG).show();
 
-    final View contentView = findViewById(R.id.fullscreen_content);
+    View contentView = findViewById(R.id.fullscreen_content);
     
     // Set up an instance of SystemUiHider to control the system UI for
     // this activity.
@@ -169,6 +182,7 @@ public class FullscreenActivity extends Activity {
 //          }
 //        });
 
+    // register a rating change listener to temporarily store the new rating from user
     postiNewsRating.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
       @Override
       public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
@@ -188,6 +202,10 @@ public class FullscreenActivity extends Activity {
 //        if (TOGGLE_ON_CLICK) {
 //          mSystemUiHider.toggle();
          
+          if (! clickedOnMyOwn) {
+            clickedOnMyOwn = false;
+          }
+          
           /**
            * change the text displayed in the back of the view ...
            * (later one I would like to display stuff from 
@@ -286,7 +304,8 @@ public class FullscreenActivity extends Activity {
             lastSloganEndIndex = 0;
             
             if (remainingPostiNewsSlogans == 0) {
-              tv.setText(" ...\n tippe nochmal, bitte ... ");
+//              WifiManager wifiManager = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+//              wifiManager.setWifiEnabled(false);
             } else {
 
               postiNewsProgress.setVisibility(ProgressBar.INVISIBLE);     
@@ -341,6 +360,97 @@ public class FullscreenActivity extends Activity {
 //    delayedHide(100);
   }
 
+  /* an inner class ... */  
+  public class PostiNewsBroadcastReceiver extends BroadcastReceiver
+  {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+
+          byte actionFlags = 0;
+          
+          /* - check for connectivity action
+           *   - determine the state change / current state in connectivity
+           *     and present an appropriate toast ...
+           */
+          String action = intent.getAction();
+          ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+          
+          Log.v("NET_CONNECT_STATE: ",action);
+          
+//          if((action.compareTo(ConnectivityManager.CONNECTIVITY_ACTION)) == 0) {
+//            actionFlags |= 0x01;
+//            Toast.makeText(context, "connectivity 1", Toast.LENGTH_LONG).show();
+//          }
+          if ((action.compareTo("android.net.wifi.WIFI_STATE_CHANGED"))     == 0) {
+//            NetworkInfo netInfo = cm.getActiveNetworkInfo();
+//            if (netInfo != null) {
+//              if (netInfo.isConnected()) {
+                actionFlags |= 0x02;
+                Toast.makeText(context, "connectivity 2", Toast.LENGTH_LONG).show();
+//              }
+//            }
+          }
+          if ((action.compareTo("android.net.conn.CONNECTIVITY_CHANGE")) == 0) {
+            actionFlags |= 0x04;
+            Toast.makeText(context, "connectivity 4", Toast.LENGTH_LONG).show();
+          }
+          
+          if (actionFlags != 0) {
+          
+          //if( (action.compareTo(WifiManager.WIFI_STATE_CHANGED_ACTION))  == 0)   //if the action match a headset one
+            //netconnected = false;
+
+            NetworkInfo netInfo = cm.getActiveNetworkInfo();
+            if (netInfo != null) {
+              Log.v("NET_CONNECT_STATE: ","netinfo available ..");
+              
+              if (netInfo.isAvailable() == false) {
+                Toast.makeText(context, "Keine Internetverbindung möglich - sorry ...", Toast.LENGTH_LONG).show();
+              } else {
+                Log.v("NET_CONNECT_STATE: ","netinfo available");
+                
+                if ((netInfo.isConnected() == true) && (clickedOnMyOwn == false)) {
+                  Toast.makeText(context, "Internetverbindung JETZT", Toast.LENGTH_LONG).show();
+                  //netconnected = true;
+                  
+                  if (connectingEventsBeforeOwnClick > 0) {
+                    connectingEventsBeforeOwnClick--;
+                    if (connectingEventsBeforeOwnClick == 0) {
+                      View contentView = findViewById(R.id.fullscreen_content);
+                      contentView.performClick();
+                      
+                      clickedOnMyOwn = true;
+                    }
+                  }
+
+                } else {
+                  if (netInfo.isConnectedOrConnecting() == true) {
+                    if (netInfo.isRoaming() == true) {
+                      Toast.makeText(context, "Internetverbindung via Roaming.", Toast.LENGTH_LONG).show();
+                    } else if (netInfo.isFailover() == true) {
+                      Toast.makeText(context, "Internetverbindung via alternatives Netz...", Toast.LENGTH_LONG).show();
+                    } else {
+                      Log.v("NET_CONNECT_STATE: ","netinfo.is<SomethingElse> ...");
+                    }
+                    //netconnected = true;
+                    
+                    View contentView = findViewById(R.id.fullscreen_content);
+                    contentView.performClick();
+                    
+                  } else {
+                    Toast.makeText(context, "Internetverbindung möglich ... aber ich will nicht ...", Toast.LENGTH_LONG).show();
+                  }
+                }
+              }
+            } else {
+              Log.v("NET_CONNECT_STATE: ","netinfo = null");
+            }
+          } else {
+            Log.v("NET_CONNECT_STATE: ","actionFlags 0");
+          }
+      }
+  }
+  
 //  /**
 //   * Touch listener to use for in-layout UI controls to delay hiding the system
 //   * UI. This is to prevent the jarring behavior of controls going away while
