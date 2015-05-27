@@ -267,7 +267,7 @@ public class FullscreenActivity extends Activity {
             
             if (sloganStorage.containsStringWithHash(postiNewsSlogan.hashCode())) {
               postiNewsRating.setVisibility(RatingBar.GONE);
-              postiNewsHint.setText("... das ist schon gespeichtert.");
+              postiNewsHint.setText("... das ist schon gespeichert.");
               postiNewsHint.setVisibility(TextView.VISIBLE);
             } else {
               postiNewsRating.setVisibility(RatingBar.VISIBLE);
