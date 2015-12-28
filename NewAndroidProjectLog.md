@@ -1,0 +1,37 @@
+# Introduction #
+
+t.b.a.
+
+# Details #
+
+  * Eclipse Kepler etc. ...
+  * New Project - Android Application Project
+```
+Application Name = <My Application Name>
+Project Name = <MyApplicationName>_by_appgemacht
+Package Name = com.appgemacht.<myapplicationname>
+```
+> > (note: the usage of upper and lower case letters !)
+
+  * A step-by-step howto: http://www.androidpit.de/de/android/wiki/view/Android_Anf%C3%A4nger_Workshop#toc171
+
+# Solved issues #
+
+  * the 'R' class (R.java) is an auto generated file which is often not created by the Eclipse staff because of missing preconditions you have to provide:
+```
+// for every 'final class XY' entry in 'R.java'
+//  you need to have a file 'res/<XY>/<entry>.xml' in place
+//
+// for example:
+//  if 'R.java' shall have a section 'public static final class layout'
+//   covering for example 'public static final int activity_main'
+//  then you need to have a file 'res/layout/activity_main.xml' in place.
+```
+  * Missing Library can be added physically under {{project}}/libs
+
+  * Starting the APP may cause  an issue like 'Could not find (Library).apk'; that helped out: http://stackoverflow.com/questions/16736452/could-not-find-actionbarsherlock-apk
+
+  * The former tip did not completely solve the issue: APP still crashed with error `'Unable to instantiate activity ComponentInfo {org.<XYZ>/org.<XYZ>.BizTownActivity}`. Solution was found here: http://rip747.wordpress.com/2013/04/05/android-java-lang-runtimeexception-unable-to-instantiate-activity-componentinfo/ in .classpath file the following entry was missing:
+```
+ <classpathentry kind="src" path="src"/>
+```

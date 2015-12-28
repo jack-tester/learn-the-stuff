@@ -1,0 +1,17 @@
+# Introduction #
+
+Well - that intro might be added later ...
+
+
+## Eclipse 'good to know's ... ##
+
+  * an Android device at USB is not necessarily popping up if you choose 'Run As...' - 'Android Application' !<br>If the connected device's Android version is not compatible with the app, then it will not be selectable as the target to run on.<br>
+<ul><li>check the version selected in project properties, 'Android', 'Project Build Target'<br>
+</li><li>check the settings in project properties, 'Run/Debug Settings', 'Target'</li></ul></li></ul>
+
+<h1>Details #
+
+Add your content here.  Format your content with:
+  * Text in **bold** or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
